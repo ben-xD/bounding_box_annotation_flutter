@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -96,22 +98,31 @@ class _Worker {
 
   Future<void> _checkInternetConnectivity() async {
     try {
-      if (!kIsWeb) {
+      if (kIsWeb) {
+        await _lookupUsingDnsOverHttp(host);
+      } else {
         await InternetAddress.lookup(host);
       }
       // debugPrint("Addresses: ${await InternetAddress.lookup(host)}");
+      notifyListeners(true);
       for (final notifier in _notifierByKey.values) {
         _latestIsConnected = true;
         notifier.value = true;
       }
-
       // For some reason,  _notifierByKey.values.map((notifier) {...}); doesn't work
     } on SocketException catch (_) {
       // Did you add internet access to your application?
-      for (final notifier in _notifierByKey.values) {
-        _latestIsConnected = false;
-        notifier.value = false;
-      }
+      notifyListeners(false);
+    } on http.ClientException catch (_) {
+      // XMLHttpRequest error on web.
+      notifyListeners(false);
+    }
+  }
+
+  void notifyListeners(bool connected) {
+    for (final notifier in _notifierByKey.values) {
+      _latestIsConnected = connected;
+      notifier.value = connected;
     }
   }
 
@@ -156,6 +167,12 @@ class _Worker {
     } else {
       _setShortestInterval(_requestedDurationsByKey.values.min);
     }
+  }
+
+  Future<void> _lookupUsingDnsOverHttp(String host) async {
+    final dnsEndpoint = Uri.https("1.1.1.1", "dns-query", {"name": host});
+    // For example, try run `curl -H "accept: application/dns-json" "https://cloudflare-dns.com/dns-query?name=orth.uk`
+    await http.get(dnsEndpoint, headers: {"accept": "application/dns-json"});
   }
 }
 
