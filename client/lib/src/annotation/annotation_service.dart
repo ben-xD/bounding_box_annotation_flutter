@@ -21,6 +21,10 @@ class AnnotationService {
   // final StreamController<AnnotationJob> _jobsStreamController = StreamController();
   // Stream<AnnotationJob> get jobs => _jobsStreamController.stream;
 
+  Future<void> skipAnnotationJob(jobId) async {
+    _inCompleteJobByJobId.remove(jobId);
+  }
+
   Future<void> submitAnnotation(Annotation annotation) async {
     _inCompleteJobByJobId.remove(annotation.annotationJobID);
     return networkRepository.submitAnnotation(annotation);

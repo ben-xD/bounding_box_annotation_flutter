@@ -66,6 +66,12 @@ class _AnnotatePageState extends State<AnnotatePage> {
     }
   }
 
+  onSkip() async {
+    final jobId = (await widget.job).id;
+    widget.service.skipAnnotationJob(jobId);
+    navigateToNextJob();
+  }
+
   Future<void> onSubmitAnnotation() async {
     final job = await widget.job;
     finishedBoundingBoxes = {};
@@ -77,18 +83,16 @@ class _AnnotatePageState extends State<AnnotatePage> {
         boundingBoxes: boxes,
         annotatedOn: DateTime.now());
     widget.service.submitAnnotation(annotation);
+    await navigateToNextJob();
+  }
+
+  navigateToNextJob() async {
     final nextJob = await widget.service.getNextJob();
-    if (nextJob == null && mounted) {
-      // Could navigate to a "complete page"
-      context.go(Routes.root);
+    if (!mounted) return;
+    if (nextJob == null) {
+      context.go(Routes.root); // TODO navigate to a "complete page"
     } else {
-      final nextJob = await widget.service.getNextJob();
-      if (!mounted) return;
-      if (nextJob == null) {
-        // TODO show error to user
-      } else {
-        context.go("${Routes.root}${Routes.annotate}/${nextJob.id}");
-      }
+      context.go("${Routes.root}${Routes.annotate}/${nextJob.id}");
     }
   }
 
@@ -130,7 +134,8 @@ class _AnnotatePageState extends State<AnnotatePage> {
         future: widget.job,
         builder: (context, snapshot) {
           if (snapshot.connectionState != ConnectionState.done) {
-            return const Scaffold(body: Align(child: CircularProgressIndicator()));
+            return const Scaffold(
+                body: Align(child: CircularProgressIndicator()));
           }
           if (snapshot.hasError) {
             return Scaffold(body: SelectableText("Error. ${snapshot.error}"));
@@ -148,6 +153,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
           return Scaffold(
             appBar: AppBar(
+              title: const Text("Banananator 🍌📸"),
               leading: IconButton(
                 icon: const Icon(Icons.arrow_circle_left_outlined),
                 onPressed: () => context.go(Routes.root),
@@ -202,8 +208,10 @@ class _AnnotatePageState extends State<AnnotatePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SelectableText("Your task", style: Theme.of(context).textTheme.headline5),
-                const SelectableText("Draw a box around all groups of bananas."),
+                SelectableText("Your task",
+                    style: Theme.of(context).textTheme.headline5),
+                const SelectableText(
+                    "Draw a box around all groups of bananas."),
               ],
             ),
           ),
@@ -216,10 +224,10 @@ class _AnnotatePageState extends State<AnnotatePage> {
               runSpacing: 8.0,
               children: [
                 OutlinedButton(
-                    onPressed: () {},
+                    onPressed: onSkip,
                     child: const Padding(
                       padding: EdgeInsets.all(16.0),
-                      child: Text("No bananas"),
+                      child: Text("Skip"),
                     )),
                 ElevatedButton(
                     onPressed: onSubmitAnnotation,

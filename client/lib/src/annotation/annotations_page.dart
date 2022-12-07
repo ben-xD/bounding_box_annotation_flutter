@@ -73,6 +73,7 @@ class AnnotationsPage extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
+        title: const Text("Banananator 🍌📸"),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
