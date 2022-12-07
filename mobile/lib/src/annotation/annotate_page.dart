@@ -1,17 +1,24 @@
 import 'dart:math';
 
 import 'package:banananator/src/annotation/annotation.dart';
+import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/constants.dart';
 import 'package:banananator/src/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 
 class AnnotatePage extends StatefulWidget {
   static const routeName = '/annotation';
+  late final AnnotationJob? job;
+  final getIt = GetIt.instance;
+  late final AnnotationService service = getIt();
 
-  // final String imageUrl;
   // TODO add image type
-  const AnnotatePage({super.key});
+  // get AnnotationJob
+  AnnotatePage({required String? jobId, super.key}) {
+    job = service.getJob(jobId);
+  }
 
   @override
   State<StatefulWidget> createState() => _AnnotatePageState();
@@ -29,7 +36,6 @@ class DrawableBoundingBox {
 class _AnnotatePageState extends State<AnnotatePage> {
   // static const imageUrl =
   //     "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.nEZo2_0rlxKZe6on44xMPAHaGC%26pid%3DApi&f=1&ipt=e986e5da57a3cc674714c940c3ce01b95ce94aba485d5b0e5bab88a88813c794&ipo=images";
-
   final _imageKey = GlobalKey();
 
   Offset first = Offset.zero;
@@ -61,6 +67,15 @@ class _AnnotatePageState extends State<AnnotatePage> {
       // So we call setState
       setState(() {});
     }
+  }
+
+  Future<void> onSubmitAnnotation() async {
+    final boxes = finishedBoundingBoxes.values.map((e) => e.box).toList();
+    final annotation = Annotation(
+        annotationJobID: widget.job!.id,
+        boundingBoxes: boxes,
+        annotatedOn: DateTime.now());
+    widget.service.submitAnnotation(annotation);
   }
 
   onPointerDown(PointerDownEvent event) {
@@ -103,6 +118,10 @@ class _AnnotatePageState extends State<AnnotatePage> {
     // Yes, we call this every time the widget rebuilds, so we update our understanding of the image size.
     WidgetsBinding.instance.addPostFrameCallback(_updateImageSize);
     final boundingBox = getCurrentBoundingBox();
+
+    if (widget.job == null) {
+      return const Text("Couldn't find that job.");
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -178,10 +197,10 @@ class _AnnotatePageState extends State<AnnotatePage> {
                       child: Text("No bananas"),
                     )),
                 ElevatedButton(
-                    onPressed: () {},
+                    onPressed: onSubmitAnnotation,
                     child: const Padding(
                       padding: EdgeInsets.all(16.0),
-                      child: Text("Continue (spacebar)"),
+                      child: Text("Continue"),
                     )),
               ],
             ),

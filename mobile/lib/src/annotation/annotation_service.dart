@@ -6,6 +6,8 @@ import 'annotation.dart';
 class AnnotationService {
   final AnnotationNetworkRepository networkRepository;
 
+  final Map<String, AnnotationJob> _jobByJobId = {};
+
   AnnotationService({required this.networkRepository});
 
   // Future<List<Image>> downloadImages(int maxQuantity) {
@@ -16,15 +18,20 @@ class AnnotationService {
   //
   // }
 
-  final StreamController<AnnotationJob> _jobsStreamController = StreamController();
-  Stream<AnnotationJob> get jobs => _jobsStreamController.stream;
+  // final StreamController<AnnotationJob> _jobsStreamController = StreamController();
+  // Stream<AnnotationJob> get jobs => _jobsStreamController.stream;
 
   Future<void> submitAnnotation(Annotation annotation) async {
-    networkRepository.submitAnnotation(annotation);
-    await Future.delayed(const Duration(seconds: 1));
+    return networkRepository.submitAnnotation(annotation);
   }
 
   Future<List<AnnotationJob>> fetchAnnotationJobs() async {
-    return networkRepository.fetchAnnotationJobs();
+    final jobs = await networkRepository.fetchAnnotationJobs();
+    for (final job in jobs) {
+      _jobByJobId[job.id] = job;
+    }
+    return jobs;
   }
+
+  AnnotationJob? getJob(String? jobId) => _jobByJobId[jobId];
 }

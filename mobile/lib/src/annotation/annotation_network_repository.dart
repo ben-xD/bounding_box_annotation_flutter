@@ -14,7 +14,7 @@ class AnnotationNetworkRepository {
   }
 
   Future<void> submitAnnotation(Annotation annotation) async {
-    final endpoint = Constants.apiUrl.resolve("api/annotations/job");
+    final endpoint = Constants.apiUrl.resolve("api/annotations");
     final json = annotation.toJson();
     final jsonString = jsonEncode(json);
     final response = await http.post(endpoint, body: jsonString);

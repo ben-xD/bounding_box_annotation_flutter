@@ -32,7 +32,14 @@ app.get('/api/annotations/jobs', async ctx => {
 })
 
 type BoundingBox = {
-	
+	topLeft: {
+		dx: number,
+		dy: number,
+	}
+	size: {
+		width: number,
+		height: number,
+	},
 }
 
 type PostAnnotation = {
@@ -48,23 +55,31 @@ app.post('/api/annotations', async ctx => {
 	if (!annotationJobID) return ctx.text("Missing annotation job ID (annotationJobID). Can't create annotation.")
 	if (!boundingBoxes) return ctx.text("Missing bounding boxes (boundingBoxes). Can't create annotation.")
 
-	const annotationID = uuidv4();
+	const annotationID = uuidv4().toString();
 	const ServerReceivedOn = new Date().toLocaleString();
+	console.log({annotatedOn, annotationJobID, boundingBoxes});
+	console.log(JSON.stringify(boundingBoxes));
 
 	// TODO sanitize all inputs?
-	const { success } = await ctx.env.DB.prepare(`
-	insert into Annotations (AnnotationID, AnnotatedOn, ServerReceivedOn, AnnotationJobID, BoundingBoxes) values (?, ?, ?, ?, ?)
-`).bind(annotationID, annotatedOn, ServerReceivedOn, annotationJobID, boundingBoxes).run()
+	try {
+		const { success } = await ctx.env.DB.prepare(`
+		insert into Annotations (id, AnnotatedOn, ServerReceivedOn, AnnotationJobID, BoundingBoxes) values (?, ?, ?, ?, ?)
+	`).bind(annotationID, annotatedOn, ServerReceivedOn, annotationJobID, JSON.stringify(boundingBoxes)).run()
+	if (success) {
+		ctx.status(201)
+		return ctx.text("Created")
+	} else {
+		ctx.status(500)
+		return ctx.text("Something went wrong")
+	}
+	} catch (e) {
+		// TODO Log the error message. D1_ERROR?
+		console.error({e})
+		ctx.status(500)
+		return ctx.text("Something went wrong")
+	}
 
-if (success) {
-	ctx.status(201)
-	return ctx.text("Created")
-} else {
-	ctx.status(500)
-	return ctx.text("Something went wrong")
-}
 
-	console.log({annotatedOn, annotationJobID, boundingBoxes});
 })
 
 export default app;

@@ -27,8 +27,9 @@ class BoundingBox with _$BoundingBox {
 @freezed
 class Annotation with _$Annotation {
   const factory Annotation(
-      {required String jobId,
-      required List<BoundingBox> boundingBox}) = _Annotation;
+      {required String annotationJobID,
+      required List<BoundingBox> boundingBoxes,
+      required DateTime annotatedOn}) = _Annotation;
 
   factory Annotation.fromJson(Map<String, Object?> json) =>
       _$AnnotationFromJson(json);

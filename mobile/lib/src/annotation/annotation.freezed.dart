@@ -182,8 +182,9 @@ Annotation _$AnnotationFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Annotation {
-  String get jobId => throw _privateConstructorUsedError;
-  List<BoundingBox> get boundingBox => throw _privateConstructorUsedError;
+  String get annotationJobID => throw _privateConstructorUsedError;
+  List<BoundingBox> get boundingBoxes => throw _privateConstructorUsedError;
+  DateTime get annotatedOn => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -197,7 +198,10 @@ abstract class $AnnotationCopyWith<$Res> {
           Annotation value, $Res Function(Annotation) then) =
       _$AnnotationCopyWithImpl<$Res, Annotation>;
   @useResult
-  $Res call({String jobId, List<BoundingBox> boundingBox});
+  $Res call(
+      {String annotationJobID,
+      List<BoundingBox> boundingBoxes,
+      DateTime annotatedOn});
 }
 
 /// @nodoc
@@ -213,18 +217,23 @@ class _$AnnotationCopyWithImpl<$Res, $Val extends Annotation>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? jobId = null,
-    Object? boundingBox = null,
+    Object? annotationJobID = null,
+    Object? boundingBoxes = null,
+    Object? annotatedOn = null,
   }) {
     return _then(_value.copyWith(
-      jobId: null == jobId
-          ? _value.jobId
-          : jobId // ignore: cast_nullable_to_non_nullable
+      annotationJobID: null == annotationJobID
+          ? _value.annotationJobID
+          : annotationJobID // ignore: cast_nullable_to_non_nullable
               as String,
-      boundingBox: null == boundingBox
-          ? _value.boundingBox
-          : boundingBox // ignore: cast_nullable_to_non_nullable
+      boundingBoxes: null == boundingBoxes
+          ? _value.boundingBoxes
+          : boundingBoxes // ignore: cast_nullable_to_non_nullable
               as List<BoundingBox>,
+      annotatedOn: null == annotatedOn
+          ? _value.annotatedOn
+          : annotatedOn // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ) as $Val);
   }
 }
@@ -237,7 +246,10 @@ abstract class _$$_AnnotationCopyWith<$Res>
       __$$_AnnotationCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String jobId, List<BoundingBox> boundingBox});
+  $Res call(
+      {String annotationJobID,
+      List<BoundingBox> boundingBoxes,
+      DateTime annotatedOn});
 }
 
 /// @nodoc
@@ -251,18 +263,23 @@ class __$$_AnnotationCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? jobId = null,
-    Object? boundingBox = null,
+    Object? annotationJobID = null,
+    Object? boundingBoxes = null,
+    Object? annotatedOn = null,
   }) {
     return _then(_$_Annotation(
-      jobId: null == jobId
-          ? _value.jobId
-          : jobId // ignore: cast_nullable_to_non_nullable
+      annotationJobID: null == annotationJobID
+          ? _value.annotationJobID
+          : annotationJobID // ignore: cast_nullable_to_non_nullable
               as String,
-      boundingBox: null == boundingBox
-          ? _value._boundingBox
-          : boundingBox // ignore: cast_nullable_to_non_nullable
+      boundingBoxes: null == boundingBoxes
+          ? _value._boundingBoxes
+          : boundingBoxes // ignore: cast_nullable_to_non_nullable
               as List<BoundingBox>,
+      annotatedOn: null == annotatedOn
+          ? _value.annotatedOn
+          : annotatedOn // ignore: cast_nullable_to_non_nullable
+              as DateTime,
     ));
   }
 }
@@ -271,25 +288,30 @@ class __$$_AnnotationCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_Annotation implements _Annotation {
   const _$_Annotation(
-      {required this.jobId, required final List<BoundingBox> boundingBox})
-      : _boundingBox = boundingBox;
+      {required this.annotationJobID,
+      required final List<BoundingBox> boundingBoxes,
+      required this.annotatedOn})
+      : _boundingBoxes = boundingBoxes;
 
   factory _$_Annotation.fromJson(Map<String, dynamic> json) =>
       _$$_AnnotationFromJson(json);
 
   @override
-  final String jobId;
-  final List<BoundingBox> _boundingBox;
+  final String annotationJobID;
+  final List<BoundingBox> _boundingBoxes;
   @override
-  List<BoundingBox> get boundingBox {
-    if (_boundingBox is EqualUnmodifiableListView) return _boundingBox;
+  List<BoundingBox> get boundingBoxes {
+    if (_boundingBoxes is EqualUnmodifiableListView) return _boundingBoxes;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_boundingBox);
+    return EqualUnmodifiableListView(_boundingBoxes);
   }
 
   @override
+  final DateTime annotatedOn;
+
+  @override
   String toString() {
-    return 'Annotation(jobId: $jobId, boundingBox: $boundingBox)';
+    return 'Annotation(annotationJobID: $annotationJobID, boundingBoxes: $boundingBoxes, annotatedOn: $annotatedOn)';
   }
 
   @override
@@ -297,15 +319,18 @@ class _$_Annotation implements _Annotation {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_Annotation &&
-            (identical(other.jobId, jobId) || other.jobId == jobId) &&
+            (identical(other.annotationJobID, annotationJobID) ||
+                other.annotationJobID == annotationJobID) &&
             const DeepCollectionEquality()
-                .equals(other._boundingBox, _boundingBox));
+                .equals(other._boundingBoxes, _boundingBoxes) &&
+            (identical(other.annotatedOn, annotatedOn) ||
+                other.annotatedOn == annotatedOn));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, jobId, const DeepCollectionEquality().hash(_boundingBox));
+  int get hashCode => Object.hash(runtimeType, annotationJobID,
+      const DeepCollectionEquality().hash(_boundingBoxes), annotatedOn);
 
   @JsonKey(ignore: true)
   @override
@@ -323,16 +348,19 @@ class _$_Annotation implements _Annotation {
 
 abstract class _Annotation implements Annotation {
   const factory _Annotation(
-      {required final String jobId,
-      required final List<BoundingBox> boundingBox}) = _$_Annotation;
+      {required final String annotationJobID,
+      required final List<BoundingBox> boundingBoxes,
+      required final DateTime annotatedOn}) = _$_Annotation;
 
   factory _Annotation.fromJson(Map<String, dynamic> json) =
       _$_Annotation.fromJson;
 
   @override
-  String get jobId;
+  String get annotationJobID;
   @override
-  List<BoundingBox> get boundingBox;
+  List<BoundingBox> get boundingBoxes;
+  @override
+  DateTime get annotatedOn;
   @override
   @JsonKey(ignore: true)
   _$$_AnnotationCopyWith<_$_Annotation> get copyWith =>
