@@ -1,0 +1,10 @@
+name = "banananator-backend"
+main = "src/index.ts"
+compatibility_date = "2022-12-06"
+
+[[ d1_databases ]]
+binding = "DB"
+database_name = "banananator"
+# database_name = "banananator_preview" # Preview
+database_id = "81dfc707-872c-4394-a8ce-9fa8c0010c74"
+preview_database_id = "34e90672-be2c-44a3-825b-f5852fb27efa"
