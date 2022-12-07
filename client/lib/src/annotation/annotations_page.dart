@@ -49,7 +49,7 @@ class AnnotationsPage extends HookWidget {
     useEffect(() {
       // Try to get annotations to annotate.
       // annotationJobs.value = [const AnnotationJob("id", Constants.imageUrl1)];
-      service.fetchAnnotationJobs().then((jobs) => annotationJobs.value = jobs);
+      service.fetchJobs().then((jobs) => annotationJobs.value = jobs);
       handler() => _onConnectedChange(context, connected);
       connected.addListener(handler);
       return () {
@@ -68,7 +68,7 @@ class AnnotationsPage extends HookWidget {
       final jobs = annotationJobs.value;
       if (!isMounted()) return;
       final jobId = jobs[0].id;
-      context.go("/${Routes.root}/${Routes.annotate}/$jobId");
+      context.go("/${Routes.root}/${Routes.annotate}");
     }
 
     return Scaffold(

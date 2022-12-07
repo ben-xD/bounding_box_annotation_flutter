@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:banananator/src/annotation/annotation.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
-import 'package:banananator/src/constants.dart';
 import 'package:banananator/src/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -10,15 +9,12 @@ import 'package:go_router/go_router.dart';
 
 class AnnotatePage extends StatefulWidget {
   static const routeName = '/annotation';
-  late final AnnotationJob? job;
   final getIt = GetIt.instance;
   late final AnnotationService service = getIt();
 
   // TODO add image type
   // get AnnotationJob
-  AnnotatePage({required String? jobId, super.key}) {
-    job = service.getJob(jobId);
-  }
+  AnnotatePage({super.key});
 
   @override
   State<StatefulWidget> createState() => _AnnotatePageState();
@@ -36,6 +32,24 @@ class DrawableBoundingBox {
 class _AnnotatePageState extends State<AnnotatePage> {
   // static const imageUrl =
   //     "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.nEZo2_0rlxKZe6on44xMPAHaGC%26pid%3DApi&f=1&ipt=e986e5da57a3cc674714c940c3ce01b95ce94aba485d5b0e5bab88a88813c794&ipo=images";
+  AnnotationJob? job;
+
+  _asyncInitState() async {
+    final poppedJob = await widget.service.popNextJob();
+    setState(() {
+      job = poppedJob;
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _asyncInitState();
+    });
+  }
+
   final _imageKey = GlobalKey();
 
   Offset first = Offset.zero;
@@ -70,12 +84,24 @@ class _AnnotatePageState extends State<AnnotatePage> {
   }
 
   Future<void> onSubmitAnnotation() async {
+    finishedBoundingBoxes = {};
+    imageSizeWhenDrawn = Size.zero;
+    imageSize = Size.zero;
     final boxes = finishedBoundingBoxes.values.map((e) => e.box).toList();
     final annotation = Annotation(
-        annotationJobID: widget.job!.id,
+        annotationJobID: job!.id,
         boundingBoxes: boxes,
         annotatedOn: DateTime.now());
     widget.service.submitAnnotation(annotation);
+    final nextJob = await widget.service.popNextJob();
+    if (nextJob == null && mounted) {
+      // Could navigate to a "complete page"
+      context.go(Routes.root);
+    } else {
+      setState(() {
+        job = nextJob;
+      });
+    }
   }
 
   onPointerDown(PointerDownEvent event) {
@@ -112,16 +138,16 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (job == null) {
+      return const Scaffold(body: Text("Couldn't find that job."));
+    }
+
     MediaQuery.of(
         context); // Trigger rebuild when window is resized. This updates the bounding box sizes.
-    final image = Image.asset(Constants.imagePath1, key: _imageKey);
+    final image = Image.network(job!.imageUrl, key: _imageKey);
     // Yes, we call this every time the widget rebuilds, so we update our understanding of the image size.
     WidgetsBinding.instance.addPostFrameCallback(_updateImageSize);
     final boundingBox = getCurrentBoundingBox();
-
-    if (widget.job == null) {
-      return const Text("Couldn't find that job.");
-    }
 
     return Scaffold(
       appBar: AppBar(

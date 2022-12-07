@@ -8,7 +8,10 @@ import { v4 as uuidv4 } from 'uuid';
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+
+const publicBucketUri = new URL("https://pub-b49d48ececa047ddbb7604b6bcd00006.r2.dev");
 export interface Env {
+	DB: D1Database;
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
 	// MY_KV_NAMESPACE: KVNamespace;
 	//
@@ -21,14 +24,30 @@ export interface Env {
 
 import { Hono } from 'hono'
 import { cors } from 'hono/cors';
+import { AnnotationJobDb } from './database_model';
 
-const app = new Hono()
+const app = new Hono<{ Bindings: Env }>()
 
 app.use('/api/*', cors());
-app.get('/api/annotations/jobs', async ctx => {
-  const { results } = await ctx.env.DB.prepare(`select * from AnnotationJobs`).all()
-  console.log({results})
-  return ctx.json(results)
+app.get('/api/annotations/jobs', async (ctx) => {
+  const result = await ctx.env.DB.prepare(`select * from AnnotationJobs`).all<AnnotationJobDb>()
+  const entries = result.results;
+  console.log({entries})
+
+  const response = [];
+  if (!entries) {
+	return ctx.text("No annotation jobs found.");
+  }
+  for (const entry of entries) {
+	const {ImageFileName, CreatedOn, id} = entry;
+	const modified = {
+		ImageURL: new URL(ImageFileName, publicBucketUri),
+		id, CreatedOn, 
+	};
+	response.push(modified);
+  }
+
+  return ctx.json(response)
 })
 
 type BoundingBox = {

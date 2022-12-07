@@ -6,7 +6,7 @@ import 'annotation.dart';
 class AnnotationService {
   final AnnotationNetworkRepository networkRepository;
 
-  final Map<String, AnnotationJob> _jobByJobId = {};
+  final Map<String, AnnotationJob> _inCompleteJobByJobId = {};
 
   AnnotationService({required this.networkRepository});
 
@@ -25,13 +25,37 @@ class AnnotationService {
     return networkRepository.submitAnnotation(annotation);
   }
 
-  Future<List<AnnotationJob>> fetchAnnotationJobs() async {
+  FutureOr<AnnotationJob?> popNextJob() async {
+    AnnotationJob? job = _inCompleteJobByJobId.pop();
+    // if (job == null) {
+    //   await fetchJobs();
+    //   job = _inCompleteJobByJobId.pop();
+    // }
+    return job;
+  }
+
+  Future<List<AnnotationJob>> fetchJobs() async {
     final jobs = await networkRepository.fetchAnnotationJobs();
-    for (final job in jobs) {
-      _jobByJobId[job.id] = job;
-    }
+    _saveJobsLocally(jobs);
     return jobs;
   }
 
-  AnnotationJob? getJob(String? jobId) => _jobByJobId[jobId];
+  _saveJobsLocally(List<AnnotationJob> jobs) {
+    for (final job in jobs) {
+      _inCompleteJobByJobId[job.id] = job;
+    }
+  }
+
+  AnnotationJob? getJob(String? jobId) => _inCompleteJobByJobId[jobId];
+}
+
+extension PopMap<K, V> on Map<K, V> {
+  V? pop() {
+    if (isNotEmpty) {
+      final key = keys.elementAt(0);
+      final job = remove(key)!;
+      return job;
+    }
+    return null;
+  }
 }

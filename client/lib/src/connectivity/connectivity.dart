@@ -2,14 +2,17 @@ import 'dart:async';
 import 'dart:core';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
+const defaultCheckInterval = Duration(seconds: 8);
+
 /// This hook makes a DNS request to the domain provided in the URL every
-/// [interval] to check for network connectivity.
+/// [checkInterval] to check for network connectivity.
 ValueNotifier<bool?> useIsNetworkConnected(
-    {required Uri uri, Duration interval = const Duration(seconds: 8)}) {
-  return use(_IsNetworkConnectedHook(host: uri.host, interval: interval));
+    {required Uri uri, Duration checkInterval = defaultCheckInterval}) {
+  return use(_IsNetworkConnectedHook(host: uri.host, interval: checkInterval));
 }
 
 class _IsNetworkConnectedHook extends Hook<ValueNotifier<bool?>> {
@@ -93,7 +96,9 @@ class _Worker {
 
   Future<void> _checkInternetConnectivity() async {
     try {
-      await InternetAddress.lookup(host);
+      if (!kIsWeb) {
+        await InternetAddress.lookup(host);
+      }
       // debugPrint("Addresses: ${await InternetAddress.lookup(host)}");
       for (final notifier in _notifierByKey.values) {
         _latestIsConnected = true;

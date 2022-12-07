@@ -17,8 +17,7 @@ class AnnotationNetworkRepository {
     final endpoint = Constants.apiUrl.resolve("api/annotations");
     final json = annotation.toJson();
     final jsonString = jsonEncode(json);
-    final response = await http.post(endpoint, body: jsonString);
-    print("submitAnnotation response: $response");
+    await http.post(endpoint, body: jsonString);
     return;
   }
 }
