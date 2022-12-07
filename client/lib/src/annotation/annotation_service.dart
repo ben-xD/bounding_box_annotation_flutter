@@ -22,16 +22,15 @@ class AnnotationService {
   // Stream<AnnotationJob> get jobs => _jobsStreamController.stream;
 
   Future<void> submitAnnotation(Annotation annotation) async {
+    _inCompleteJobByJobId.remove(annotation.annotationJobID);
     return networkRepository.submitAnnotation(annotation);
   }
 
-  FutureOr<AnnotationJob?> popNextJob() async {
-    AnnotationJob? job = _inCompleteJobByJobId.pop();
-    // if (job == null) {
+  FutureOr<AnnotationJob?> getNextJob() async {
+    // if (_inCompleteJobByJobId.isNotEmpty) {
     //   await fetchJobs();
-    //   job = _inCompleteJobByJobId.pop();
     // }
-    return job;
+    return _inCompleteJobByJobId.get();
   }
 
   Future<List<AnnotationJob>> fetchJobs() async {
@@ -46,15 +45,33 @@ class AnnotationService {
     }
   }
 
-  AnnotationJob? getJob(String? jobId) => _inCompleteJobByJobId[jobId];
+  Future<AnnotationJob> getJob(String jobId) async {
+    if (!_inCompleteJobByJobId.containsKey(jobId)) {
+      await fetchJobs();
+    }
+    final job = _inCompleteJobByJobId[jobId];
+    if (job != null) {
+    return job;
+    }
+    throw Exception("Job $jobId was not found");
+    // throw AnnotationRepositoryException
+  }
 }
 
 extension PopMap<K, V> on Map<K, V> {
   V? pop() {
     if (isNotEmpty) {
       final key = keys.elementAt(0);
-      final job = remove(key)!;
+      final job = remove(key);
       return job;
+    }
+    return null;
+  }
+
+  V? get() {
+    if (isNotEmpty) {
+      final key = keys.elementAt(0);
+      return this[key];
     }
     return null;
   }

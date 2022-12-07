@@ -15,18 +15,9 @@ class MyApp extends StatelessWidget {
     return FutureBuilder(
         future: getIt.allReady(),
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              home: Scaffold(
-                  body: Container(
-                      alignment: Alignment.center,
-                      child: const CircularProgressIndicator())),
-            );
-          }
-
           final GoRouter router = getIt();
           return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
             routerConfig: router,
             restorationScopeId: 'app',
             theme: ThemeData(),

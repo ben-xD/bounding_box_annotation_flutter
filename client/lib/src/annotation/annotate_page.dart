@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:banananator/src/annotation/annotation.dart';
@@ -12,9 +13,12 @@ class AnnotatePage extends StatefulWidget {
   final getIt = GetIt.instance;
   late final AnnotationService service = getIt();
 
-  // TODO add image type
-  // get AnnotationJob
-  AnnotatePage({super.key});
+  late final String jobId;
+  late final Future<AnnotationJob> job;
+
+  AnnotatePage({required this.jobId, super.key}) {
+    job = service.getJob(jobId);
+  }
 
   @override
   State<StatefulWidget> createState() => _AnnotatePageState();
@@ -30,28 +34,7 @@ class DrawableBoundingBox {
 }
 
 class _AnnotatePageState extends State<AnnotatePage> {
-  // static const imageUrl =
-  //     "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.nEZo2_0rlxKZe6on44xMPAHaGC%26pid%3DApi&f=1&ipt=e986e5da57a3cc674714c940c3ce01b95ce94aba485d5b0e5bab88a88813c794&ipo=images";
-  AnnotationJob? job;
-
-  _asyncInitState() async {
-    final poppedJob = await widget.service.popNextJob();
-    setState(() {
-      job = poppedJob;
-    });
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _asyncInitState();
-    });
-  }
-
   final _imageKey = GlobalKey();
-
   Offset first = Offset.zero;
   Offset last = Offset.zero;
   Size imageSize = Size.zero;
@@ -84,23 +67,28 @@ class _AnnotatePageState extends State<AnnotatePage> {
   }
 
   Future<void> onSubmitAnnotation() async {
+    final job = await widget.job;
     finishedBoundingBoxes = {};
     imageSizeWhenDrawn = Size.zero;
     imageSize = Size.zero;
     final boxes = finishedBoundingBoxes.values.map((e) => e.box).toList();
     final annotation = Annotation(
-        annotationJobID: job!.id,
+        annotationJobID: job.id,
         boundingBoxes: boxes,
         annotatedOn: DateTime.now());
     widget.service.submitAnnotation(annotation);
-    final nextJob = await widget.service.popNextJob();
+    final nextJob = await widget.service.getNextJob();
     if (nextJob == null && mounted) {
       // Could navigate to a "complete page"
       context.go(Routes.root);
     } else {
-      setState(() {
-        job = nextJob;
-      });
+      final nextJob = await widget.service.getNextJob();
+      if (!mounted) return;
+      if (nextJob == null) {
+        // TODO show error to user
+      } else {
+        context.go("${Routes.root}${Routes.annotate}/${nextJob.id}");
+      }
     }
   }
 
@@ -138,59 +126,70 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (job == null) {
-      return const Scaffold(body: Text("Couldn't find that job."));
-    }
+    return FutureBuilder(
+        future: widget.job,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Scaffold(body: Align(child: CircularProgressIndicator()));
+          }
+          if (snapshot.hasError) {
+            return Scaffold(body: SelectableText("Error. ${snapshot.error}"));
+          }
+          if (!snapshot.hasData) {
+            return const SelectableText("No job found");
+          }
+          final AnnotationJob job = snapshot.data!;
+          MediaQuery.of(
+              context); // Trigger rebuild when window is resized. This updates the bounding box sizes.
+          final image = Image.network(job.imageUrl, key: _imageKey);
+          // Yes, we call this every time the widget rebuilds, so we update our understanding of the image size.
+          WidgetsBinding.instance.addPostFrameCallback(_updateImageSize);
+          final boundingBox = getCurrentBoundingBox();
 
-    MediaQuery.of(
-        context); // Trigger rebuild when window is resized. This updates the bounding box sizes.
-    final image = Image.network(job!.imageUrl, key: _imageKey);
-    // Yes, we call this every time the widget rebuilds, so we update our understanding of the image size.
-    WidgetsBinding.instance.addPostFrameCallback(_updateImageSize);
-    final boundingBox = getCurrentBoundingBox();
-
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_circle_left_outlined),
-          onPressed: () => context.go(Routes.root),
-        ),
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildTaskWidget(context),
-            Flexible(
-              child: Listener(
-                onPointerDown: onPointerDown,
-                onPointerUp: onPointerUp,
-                onPointerMove: onPointerMove,
-                child: Stack(
-                  children: [
-                    // Can't use onTapDown because GestureTapDownCallback doesn't
-                    // provide tracking the finger as it is tracked.
-                    // We need to go lower level.
-                    // GestureDetector(child: Image.asset(Constants.imagePath1), onTapDown: (gestureTapDown){
-                    //   print("Local position: ${gestureTapDown.localPosition}");
-                    // },),
-                    image,
-                    (boundingBox == null)
-                        ? const SizedBox.shrink()
-                        : buildBoundingBoxWidget(boundingBox, currentColor),
-                    ...finishedBoundingBoxes.entries
-                        .map((e) =>
-                            buildBoundingBoxWidget(e.value.box, e.value.color))
-                        .toList(),
-                  ],
-                ),
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_circle_left_outlined),
+                onPressed: () => context.go(Routes.root),
               ),
             ),
-            buildBoundingBoxesList(),
-          ],
-        ),
-      ),
-    );
+            body: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildTaskWidget(context),
+                  Flexible(
+                    child: Listener(
+                      onPointerDown: onPointerDown,
+                      onPointerUp: onPointerUp,
+                      onPointerMove: onPointerMove,
+                      child: Stack(
+                        children: [
+                          // Can't use onTapDown because GestureTapDownCallback doesn't
+                          // provide tracking the finger as it is tracked.
+                          // We need to go lower level.
+                          // GestureDetector(child: Image.asset(Constants.imagePath1), onTapDown: (gestureTapDown){
+                          //   print("Local position: ${gestureTapDown.localPosition}");
+                          // },),
+                          image,
+                          (boundingBox == null)
+                              ? const SizedBox.shrink()
+                              : buildBoundingBoxWidget(
+                                  boundingBox, currentColor),
+                          ...finishedBoundingBoxes.entries
+                              .map((e) => buildBoundingBoxWidget(
+                                  e.value.box, e.value.color))
+                              .toList(),
+                        ],
+                      ),
+                    ),
+                  ),
+                  buildBoundingBoxesList(),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   SingleChildScrollView buildTaskWidget(BuildContext context) {
@@ -203,8 +202,8 @@ class _AnnotatePageState extends State<AnnotatePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Your task", style: Theme.of(context).textTheme.headline5),
-                const Text("Draw a box around all groups of bananas."),
+                SelectableText("Your task", style: Theme.of(context).textTheme.headline5),
+                const SelectableText("Draw a box around all groups of bananas."),
               ],
             ),
           ),
@@ -239,7 +238,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
   Widget buildBoundingBoxesList() {
     final List<Widget> elements;
     if (finishedBoundingBoxes.isEmpty) {
-      elements = const [Text("No bounding boxes drawn")];
+      elements = const [SelectableText("No bounding boxes drawn")];
     } else {
       elements = finishedBoundingBoxes.entries
           .map((e) => Row(
@@ -251,7 +250,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
                       finishedBoundingBoxes.remove(e.key);
                       setState(() {});
                     },
-                    label: const Text("Bounding box"),
+                    label: const SelectableText("Bounding box"),
                   ),
                 ],
               ))
@@ -266,7 +265,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
-                child: Text("Drawn bounding boxes",
+                child: SelectableText("Drawn bounding boxes",
                     style: Theme.of(context).textTheme.headline5),
               ),
               IconButton(

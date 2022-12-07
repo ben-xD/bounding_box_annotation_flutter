@@ -68,7 +68,7 @@ class AnnotationsPage extends HookWidget {
       final jobs = annotationJobs.value;
       if (!isMounted()) return;
       final jobId = jobs[0].id;
-      context.go("/${Routes.root}/${Routes.annotate}");
+      context.go("${Routes.root}${Routes.annotate}/$jobId");
     }
 
     return Scaffold(
@@ -87,9 +87,9 @@ class AnnotationsPage extends HookWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Annotation jobs.",
+              SelectableText("Annotation jobs.",
                   style: Theme.of(context).textTheme.headline5),
-              Text(
+              SelectableText(
                   "You have ${annotationJobs.value.length} annotation ${(annotationJobs.value.length == 1) ? "job" : "jobs"} to finish."),
               ListView.builder(
                 shrinkWrap: true,
@@ -101,8 +101,8 @@ class AnnotationsPage extends HookWidget {
                     child: Wrap(
                       spacing: 16.0,
                       children: [
-                        Text("Job ID: ${job.id}"),
-                        Text("Created on: ${timeago.format(job.createdOn)}")
+                        SelectableText("Job ID: ${job.id}"),
+                        SelectableText("Created on: ${timeago.format(job.createdOn)}")
                       ],
                     ),
                   );

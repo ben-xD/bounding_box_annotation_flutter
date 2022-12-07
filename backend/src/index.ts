@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 const publicBucketUri = new URL("https://pub-b49d48ececa047ddbb7604b6bcd00006.r2.dev");
+const defaultCorsDomain = "banananator.pages.dev";
 export interface Env {
 	DB: D1Database;
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -28,7 +29,18 @@ import { AnnotationJobDb } from './database_model';
 
 const app = new Hono<{ Bindings: Env }>()
 
-app.use('/api/*', cors());
+const createCorsOrigin = (origin: string): string => {
+	// Need to accept 'http://localhost:58159' with abtrary ports.
+	const regex = /http:\/\/localhost:\d+/;
+	const isLocalhost = origin.match(regex)
+	if (isLocalhost) return origin;
+	if (origin.endsWith(`.${defaultCorsDomain}`)) return origin;
+	return `https://${defaultCorsDomain}`;
+}
+
+app.use('/api/*', cors({
+	origin: createCorsOrigin
+}));
 app.get('/api/annotations/jobs', async (ctx) => {
   const result = await ctx.env.DB.prepare(`select * from AnnotationJobs`).all<AnnotationJobDb>()
   const entries = result.results;
