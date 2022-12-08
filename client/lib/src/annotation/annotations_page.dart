@@ -108,8 +108,7 @@ class AnnotationsPage extends HookWidget {
   }
 
   Padding buildAnnotationsSliver(
-      BuildContext context,
-      ValueNotifier<List<Annotation>> annotations) {
+      BuildContext context, ValueNotifier<List<Annotation>> annotations) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -118,9 +117,10 @@ class AnnotationsPage extends HookWidget {
         children: [
           SelectableText("Annotations.",
               style: Theme.of(context).textTheme.headline5),
-        SelectableText(
-            "There are ${annotations.value.length} ${(annotations.value.length == 1) ? "annotation" : "annotations"} uploaded by all users."),
-          const SelectableText("The same image may appear more than once if annotated more than once."),
+          SelectableText(
+              "There are ${annotations.value.length} ${(annotations.value.length == 1) ? "annotation" : "annotations"} uploaded by all users."),
+          const SelectableText(
+              "The same image may appear more than once if annotated more than once."),
           AnnotationsWidget(
             annotations: annotations.value,
           ),
@@ -143,23 +143,25 @@ class AnnotationsPage extends HookWidget {
               style: Theme.of(context).textTheme.headline5),
           SelectableText(
               "You have ${annotationJobs.value.length} annotation ${(annotationJobs.value.length == 1) ? "job" : "jobs"} to finish."),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: annotationJobs.value.length,
-            itemBuilder: (BuildContext context, int index) {
-              final job = annotationJobs.value[index];
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Wrap(
-                  spacing: 16.0,
-                  children: [
-                    SelectableText("Job ID: ${job.id}"),
-                    SelectableText(
-                        "Created on: ${timeago.format(job.createdOn)}")
-                  ],
-                ),
-              );
-            },
+          Wrap(
+            children: annotationJobs.value
+                .map((e) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SelectableText(
+                              "Created on: ${timeago.format(e.createdOn)}"),
+                          SizedBox(height: 8),
+                          Image.network(
+                            e.imageUrl,
+                            width: 160,
+                          ),
+                          // SelectableText("Job ID: ${job.id}"),
+                        ],
+                      ),
+                    ))
+                .toList(),
           ),
           (annotationJobs.value.isEmpty)
               ? const SizedBox.shrink()
