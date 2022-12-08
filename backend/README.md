@@ -4,8 +4,8 @@
 ## Useful commands:
 
 ### For backend
-- Run backend locally: `npx wrangler dev src/index.ts`
-- Deploy backend application: `npx wrangler publish src/index.ts --name banananator`
+- Run backend locally: `npx wrangler dev`
+- Deploy backend application: `npx wrangler publish`
 - Reset database to `schema.sql`:
     - Reset preview database: `npx wrangler d1 execute banananator_preview --file schemas/schema.sql`
     - Reset production database: `npx wrangler d1 execute banananator --file schemas/schema.sql`
