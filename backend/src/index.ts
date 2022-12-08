@@ -19,6 +19,7 @@ export interface Env {
 import { Context, Hono } from 'hono'
 import { cors } from 'hono/cors';
 import { AnnotationDb, AnnotationJobDb } from './database_model';
+import { clientError, serverError } from './errors';
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -35,23 +36,23 @@ app.use('/api/*', cors({
 	origin: createCorsOrigin
 }));
 app.get('/api/annotations/jobs', async (ctx) => {
-  const result = await ctx.env.DB.prepare(`select * from AnnotationJobs`).all<AnnotationJobDb>()
-  const entries = result.results;
+	const result = await ctx.env.DB.prepare(`select * from AnnotationJobs`).all<AnnotationJobDb>()
+	const entries = result.results;
 
-  const response = [];
-  if (!entries) {
-	return ctx.text("No annotation jobs found.");
-  }
-  for (const entry of entries) {
-	const {ImageFileName, CreatedOn, id} = entry;
-	const modified = {
-		ImageURL: new URL(ImageFileName, publicBucketUri),
-		id, CreatedOn, 
-	};
-	response.push(modified);
-  }
+	const response = [];
+	if (!entries) {
+		return ctx.text("No annotation jobs found.");
+	}
+	for (const entry of entries) {
+		const { ImageFileName, CreatedOn, id } = entry;
+		const modified = {
+			ImageURL: new URL(ImageFileName, publicBucketUri),
+			id, CreatedOn,
+		};
+		response.push(modified);
+	}
 
-  return ctx.json(response)
+	return ctx.json(response)
 })
 
 type BoundingBox = {
@@ -68,57 +69,49 @@ type BoundingBox = {
 type PostAnnotation = {
 	AnnotatedOn: string
 	AnnotationJobID: string
-	BoundingBoxes: BoundingBox[]
+	BoundingBoxes: string
 }
 
 app.get('/api/annotations', async ctx => {
-  const result = await ctx.env.DB.prepare(`select * from Annotations`).all<AnnotationDb>()
-  const entries = result.results;
-  return ctx.json(entries, 200);
+	const result = await ctx.env.DB.prepare(`select * from Annotations`).all<AnnotationDb>()
+	const entries = result.results;
+	return ctx.json(entries, 200);
 })
-
-const clientError = (ctx: Context, message: string) => {
-	console.error(message);
-	return ctx.text(message, 400)
-}
 
 app.delete('/api/annotations', async ctx => {
 	try {
-		await ctx.env.DB.exec(`DELETE from Annotations`)
-		return ctx.body(null, 200)
-	} catch (e) {
-		console.error(`Failed to delete annotations: ${e}`);
-		return ctx.body(null, 400)
+		const result = await ctx.env.DB.prepare(`DELETE from Annotations`).run()
+		if (result.success) {
+			return ctx.body(null, 200)
+		}
+		return clientError(ctx, "Failed to delete annotations")
+	} catch (e: any) {
+		return serverError(ctx, `Failed to delete annotations`, e)
 	}
 })
 
 app.post('/api/annotations', async ctx => {
 	const { AnnotatedOn, AnnotationJobID, BoundingBoxes } = await ctx.req.json<PostAnnotation>();
-	
+
 	if (!AnnotatedOn) return clientError(ctx, "Missing annotation timestamp (annotatedOn). Can't create annotation.")
 	if (!AnnotationJobID) return clientError(ctx, "Missing annotation job ID (annotationJobID). Can't create annotation.")
-	// if (!boundingBoxes) return ctx.text("Missing bounding boxes (boundingBoxes). Can't create annotation.", 400)
+	const boundingBoxes = JSON.parse(BoundingBoxes);
+	if (!(boundingBoxes instanceof Array)) return ctx.text("Missing bounding boxes (boundingBoxes). Can't create annotation.", 400)
 
 	const annotationID = uuidv4().toString();
 	const ServerReceivedOn = new Date().toLocaleString();
-
 	// TODO sanitize all inputs?
 	try {
 		const { success } = await ctx.env.DB.prepare(`
 		insert into Annotations (id, AnnotatedOn, ServerReceivedOn, AnnotationJobID, BoundingBoxes) values (?, ?, ?, ?, ?)
-	`).bind(annotationID, AnnotatedOn, ServerReceivedOn, AnnotationJobID, BoundingBoxes).run()
-	if (success) {
-		ctx.status(201)
-		return ctx.text("Created")
-	} else {
-		ctx.status(500)
-		return ctx.text("Something went wrong")
-	}
+	`).bind(annotationID, AnnotatedOn, ServerReceivedOn, AnnotationJobID, JSON.stringify(boundingBoxes)).run()
+		if (success) {
+			return ctx.text("Created", 201)
+		} else {
+			return clientError(ctx, "Failed to get annotations");
+		}
 	} catch (e) {
-		// TODO Log the error message. D1_ERROR?
-		console.error({e})
-		ctx.status(500)
-		return ctx.text("Something went wrong")
+		return serverError(ctx, "Failed to get annotations");
 	}
 })
 
