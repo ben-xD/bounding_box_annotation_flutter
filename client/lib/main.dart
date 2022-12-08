@@ -4,12 +4,13 @@ import 'package:banananator/src/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_strategy/url_strategy.dart';
 
 import 'src/app.dart';
 
 void main() async {
+  setPathUrlStrategy();
   registerServices();
-
   runApp(MyApp());
 }
 
