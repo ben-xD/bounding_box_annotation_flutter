@@ -90,11 +90,13 @@ const clientError = (ctx: Context, message: string) => {
 }
 
 app.delete('/api/annotations', async ctx => {
-	const {success} = await ctx.env.DB.exec(`DELETE from Annotations`)
-	if (success) {
-		return ctx.status(200);
+	try {
+		await ctx.env.DB.exec(`DELETE from Annotations`)
+		return ctx.body(null, 200)
+	} catch (e) {
+		console.error(`Failed to delete annotations: ${e}`);
+		return ctx.body(null, 400)
 	}
-	return ctx.status(400);
 })
 
 app.post('/api/annotations', async ctx => {
