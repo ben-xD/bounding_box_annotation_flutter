@@ -122,79 +122,83 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: widget.job,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Scaffold(
-                body: Align(child: CircularProgressIndicator()));
-          }
-          if (snapshot.hasError) {
-            return Scaffold(body: SelectableText("Error. ${snapshot.error}"));
-          }
-          if (!snapshot.hasData) {
-            return const SelectableText("No job found");
-          }
-          final AnnotationJob job = snapshot.data!;
-          MediaQuery.of(
-              context); // Trigger rebuild when window is resized. This updates the bounding box sizes.
-          final image = Image.network(job.imageUrl, key: _imageKey);
-          // Yes, we call this every time the widget rebuilds, so we update our understanding of the image size.
-          WidgetsBinding.instance.addPostFrameCallback(_updateImageSize);
-          final boundingBox = getCurrentBoundingBox();
+    // Disable swiping back to previous page, as per https://stackoverflow.com/a/49162131/7365866
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: FutureBuilder(
+          future: widget.job,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const Scaffold(
+                  body: Align(child: CircularProgressIndicator()));
+            }
+            if (snapshot.hasError) {
+              return Scaffold(body: SelectableText("Error. ${snapshot.error}"));
+            }
+            if (!snapshot.hasData) {
+              return const SelectableText("No job found");
+            }
+            final AnnotationJob job = snapshot.data!;
+            MediaQuery.of(
+                context); // Trigger rebuild when window is resized. This updates the bounding box sizes.
+            final image = Image.network(job.imageUrl, key: _imageKey);
+            // Yes, we call this every time the widget rebuilds, so we update our understanding of the image size.
+            WidgetsBinding.instance.addPostFrameCallback(_updateImageSize);
+            final boundingBox = getCurrentBoundingBox();
 
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text("Banananator 🍌📸"),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_circle_left_outlined),
-                onPressed: () => context.go(Routes.root),
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text("Banananator 🍌📸"),
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_circle_left_outlined),
+                  onPressed: () => context.go(Routes.root),
+                ),
               ),
-            ),
-            body: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  buildTaskWidget(context),
-                  Flexible(
-                    child: Listener(
-                      onPointerDown: onPointerDown,
-                      onPointerUp: onPointerUp,
-                      onPointerMove: onPointerMove,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // Can't use onTapDown because GestureTapDownCallback doesn't
-                          // provide tracking the finger as it is tracked.
-                          // We need to go lower level.
-                          // GestureDetector(child: Image.asset(Constants.imagePath1), onTapDown: (gestureTapDown){
-                          //   print("Local position: ${gestureTapDown.localPosition}");
-                          // },),
-                          image,
-                          (boundingBox == null)
-                              ? const SizedBox.shrink()
-                              : BoundingBoxWidget(
-                                  box: boundingBox,
-                                  color: currentColor,
-                                  scaleTo: imageSize,
-                                ),
-                          ...finishedBoundingBoxes.values
-                              .map((e) => BoundingBoxWidget(
-                            box: e.box,
-                            color: e.color,
-                            scaleTo: imageSize,
-                          ))
-                              .toList(),
-                        ],
+              body: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    buildTaskWidget(context),
+                    Flexible(
+                      child: Listener(
+                        onPointerDown: onPointerDown,
+                        onPointerUp: onPointerUp,
+                        onPointerMove: onPointerMove,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            // Can't use onTapDown because GestureTapDownCallback doesn't
+                            // provide tracking the finger as it is tracked.
+                            // We need to go lower level.
+                            // GestureDetector(child: Image.asset(Constants.imagePath1), onTapDown: (gestureTapDown){
+                            //   print("Local position: ${gestureTapDown.localPosition}");
+                            // },),
+                            image,
+                            (boundingBox == null)
+                                ? const SizedBox.shrink()
+                                : BoundingBoxWidget(
+                                    box: boundingBox,
+                                    color: currentColor,
+                                    scaleTo: imageSize,
+                                  ),
+                            ...finishedBoundingBoxes.values
+                                .map((e) => BoundingBoxWidget(
+                              box: e.box,
+                              color: e.color,
+                              scaleTo: imageSize,
+                            ))
+                                .toList(),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  buildBoundingBoxesList(),
-                ],
+                    buildBoundingBoxesList(),
+                  ],
+                ),
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
   }
 
   SingleChildScrollView buildTaskWidget(BuildContext context) {
@@ -263,35 +267,38 @@ class _AnnotatePageState extends State<AnnotatePage> {
               ))
           .toList();
     }
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: SelectableText("Drawn bounding boxes",
-                    style: Theme.of(context).textTheme.headline5),
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () {
-                  setState(() {
-                    finishedBoundingBoxes = {};
-                  });
-                },
-              )
-            ],
-          ),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 8.0,
-            children: elements,
-          ),
-        ],
+    return Container(
+      constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height * 0.16),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: SelectableText("Drawn bounding boxes",
+                      style: Theme.of(context).textTheme.headline5),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    setState(() {
+                      finishedBoundingBoxes = {};
+                    });
+                  },
+                )
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 8.0,
+              runSpacing: 8.0,
+              children: elements,
+            ),
+          ],
+        ),
       ),
     );
   }

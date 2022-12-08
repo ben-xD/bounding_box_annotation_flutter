@@ -1,13 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-/**
- * - Run `wrangler dev src/index.ts` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `wrangler publish src/index.ts --name my-worker` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
-
+// See https://honojs.dev/docs/examples/ for more examples.
 
 const publicBucketUri = new URL("https://pub-b49d48ececa047ddbb7604b6bcd00006.r2.dev");
 const defaultCorsDomain = "banananator.pages.dev";
