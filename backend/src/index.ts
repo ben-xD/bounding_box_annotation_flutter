@@ -16,7 +16,7 @@ export interface Env {
 	// MY_BUCKET: R2Bucket;
 }
 
-import { Context, Hono } from 'hono'
+import { Hono } from 'hono'
 import { cors } from 'hono/cors';
 import { AnnotationDb, AnnotationJobDb } from './database_model';
 import { clientError, serverError } from './errors';
@@ -31,10 +31,12 @@ const createCorsOrigin = (origin: string): string => {
 	if (origin.endsWith(`.${defaultCorsDomain}`)) return origin;
 	return `https://${defaultCorsDomain}`;
 }
-
 app.use('/api/*', cors({
 	origin: createCorsOrigin
 }));
+// CORS Preflight request
+app.options('*', async (ctx) => ctx.body(null, 200))
+
 app.get('/api/annotations/jobs', async (ctx) => {
 	const result = await ctx.env.DB.prepare(`select * from AnnotationJobs`).all<AnnotationJobDb>()
 	const entries = result.results;
