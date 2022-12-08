@@ -23,9 +23,9 @@ export interface Env {
 	// MY_BUCKET: R2Bucket;
 }
 
-import { Hono } from 'hono'
+import { Context, Hono } from 'hono'
 import { cors } from 'hono/cors';
-import { AnnotationJobDb } from './database_model';
+import { AnnotationDb, AnnotationJobDb } from './database_model';
 
 const app = new Hono<{ Bindings: Env }>()
 
@@ -44,7 +44,6 @@ app.use('/api/*', cors({
 app.get('/api/annotations/jobs', async (ctx) => {
   const result = await ctx.env.DB.prepare(`select * from AnnotationJobs`).all<AnnotationJobDb>()
   const entries = result.results;
-  console.log({entries})
 
   const response = [];
   if (!entries) {
@@ -74,28 +73,45 @@ type BoundingBox = {
 }
 
 type PostAnnotation = {
-	annotatedOn: string
-	annotationJobID: string
-	boundingBoxes: BoundingBox[]
+	AnnotatedOn: string
+	AnnotationJobID: string
+	BoundingBoxes: BoundingBox[]
 }
 
-app.post('/api/annotations', async ctx => {
-	const { annotatedOn, annotationJobID, boundingBoxes } = await ctx.req.json<PostAnnotation>();
+app.get('/api/annotations', async ctx => {
+  const result = await ctx.env.DB.prepare(`select * from Annotations`).all<AnnotationDb>()
+  const entries = result.results;
+  return ctx.json(entries, 200);
+})
 
-	if (!annotatedOn) return ctx.text("Missing annotation timestamp (annotatedOn). Can't create annotation.")
-	if (!annotationJobID) return ctx.text("Missing annotation job ID (annotationJobID). Can't create annotation.")
-	if (!boundingBoxes) return ctx.text("Missing bounding boxes (boundingBoxes). Can't create annotation.")
+const clientError = (ctx: Context, message: string) => {
+	console.error(message);
+	return ctx.text(message, 400)
+}
+
+app.delete('/api/annotations', async ctx => {
+	const {success} = await ctx.env.DB.exec(`DELETE from Annotations`)
+	if (success) {
+		return ctx.status(200);
+	}
+	return ctx.status(400);
+})
+
+app.post('/api/annotations', async ctx => {
+	const { AnnotatedOn, AnnotationJobID, BoundingBoxes } = await ctx.req.json<PostAnnotation>();
+	
+	if (!AnnotatedOn) return clientError(ctx, "Missing annotation timestamp (annotatedOn). Can't create annotation.")
+	if (!AnnotationJobID) return clientError(ctx, "Missing annotation job ID (annotationJobID). Can't create annotation.")
+	// if (!boundingBoxes) return ctx.text("Missing bounding boxes (boundingBoxes). Can't create annotation.", 400)
 
 	const annotationID = uuidv4().toString();
 	const ServerReceivedOn = new Date().toLocaleString();
-	console.log({annotatedOn, annotationJobID, boundingBoxes});
-	console.log(JSON.stringify(boundingBoxes));
 
 	// TODO sanitize all inputs?
 	try {
 		const { success } = await ctx.env.DB.prepare(`
 		insert into Annotations (id, AnnotatedOn, ServerReceivedOn, AnnotationJobID, BoundingBoxes) values (?, ?, ?, ?, ?)
-	`).bind(annotationID, annotatedOn, ServerReceivedOn, annotationJobID, JSON.stringify(boundingBoxes)).run()
+	`).bind(annotationID, AnnotatedOn, ServerReceivedOn, AnnotationJobID, BoundingBoxes).run()
 	if (success) {
 		ctx.status(201)
 		return ctx.text("Created")
@@ -109,8 +125,6 @@ app.post('/api/annotations', async ctx => {
 		ctx.status(500)
 		return ctx.text("Something went wrong")
 	}
-
-
 })
 
 export default app;

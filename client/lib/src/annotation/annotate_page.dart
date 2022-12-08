@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:banananator/src/annotation/annotation.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
+import 'package:banananator/src/annotation/bounding_box_widget.dart';
 import 'package:banananator/src/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -24,15 +25,6 @@ class AnnotatePage extends StatefulWidget {
   State<StatefulWidget> createState() => _AnnotatePageState();
 }
 
-class DrawableBoundingBox {
-  final Color color;
-  final BoundingBox box;
-  final DateTime createdAt;
-
-  const DrawableBoundingBox(
-      {required this.color, required this.box, required this.createdAt});
-}
-
 class _AnnotatePageState extends State<AnnotatePage> {
   final _imageKey = GlobalKey();
   Offset first = Offset.zero;
@@ -51,7 +43,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
   };
 
   // List<BoundingBox> finishedBoundingBoxes = [];
-  Map<DateTime, DrawableBoundingBox> finishedBoundingBoxes = {};
+  Map<DateTime, FinishedBoundingBox> finishedBoundingBoxes = {};
 
   void _updateImageSize(Duration _) {
     final size = _imageKey.currentContext?.size;
@@ -74,7 +66,6 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
   Future<void> onSubmitAnnotation() async {
     final job = await widget.job;
-    finishedBoundingBoxes = {};
     imageSizeWhenDrawn = Size.zero;
     imageSize = Size.zero;
     final boxes = finishedBoundingBoxes.values.map((e) => e.box).toList();
@@ -87,6 +78,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
   }
 
   navigateToNextJob() async {
+    finishedBoundingBoxes = {};
     final nextJob = await widget.service.getNextJob();
     if (!mounted) return;
     if (nextJob == null) {
@@ -119,7 +111,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
     if (box.size.width < thresholdSize && box.size.height < thresholdSize) {
       return;
     }
-    finishedBoundingBoxes[currentTime] = DrawableBoundingBox(
+    finishedBoundingBoxes[currentTime] = FinishedBoundingBox(
         color: currentColor, box: box, createdAt: currentTime);
     first = Offset.zero;
     last = Offset.zero;
@@ -161,7 +153,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
             ),
             body: SafeArea(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   buildTaskWidget(context),
                   Flexible(
@@ -170,6 +162,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
                       onPointerUp: onPointerUp,
                       onPointerMove: onPointerMove,
                       child: Stack(
+                        alignment: Alignment.center,
                         children: [
                           // Can't use onTapDown because GestureTapDownCallback doesn't
                           // provide tracking the finger as it is tracked.
@@ -180,11 +173,17 @@ class _AnnotatePageState extends State<AnnotatePage> {
                           image,
                           (boundingBox == null)
                               ? const SizedBox.shrink()
-                              : buildBoundingBoxWidget(
-                                  boundingBox, currentColor),
-                          ...finishedBoundingBoxes.entries
-                              .map((e) => buildBoundingBoxWidget(
-                                  e.value.box, e.value.color))
+                              : BoundingBoxWidget(
+                                  box: boundingBox,
+                                  color: currentColor,
+                                  scaleTo: imageSize,
+                                ),
+                          ...finishedBoundingBoxes.values
+                              .map((e) => BoundingBoxWidget(
+                            box: e.box,
+                            color: e.color,
+                            scaleTo: imageSize,
+                          ))
                               .toList(),
                         ],
                       ),
@@ -297,19 +296,6 @@ class _AnnotatePageState extends State<AnnotatePage> {
     );
   }
 
-  Positioned buildBoundingBoxWidget(BoundingBox box, Color color) {
-    final scaledBox = scaleBoundingBox(box, imageSize.width, imageSize.height);
-    return Positioned(
-      left: scaledBox.topLeft.dx,
-      top: scaledBox.topLeft.dy,
-      child: Container(
-        color: color.withOpacity(0.5),
-        width: scaledBox.size.width,
-        height: scaledBox.size.height,
-      ),
-    );
-  }
-
   BoundingBox? getCurrentBoundingBox() {
     if (imageSizeWhenDrawn.height == 0 || imageSizeWhenDrawn.width == 0) {
       return null;
@@ -324,12 +310,4 @@ class _AnnotatePageState extends State<AnnotatePage> {
     final height = bottom - top;
     return BoundingBox(topLeft: Offset(left, top), size: Size(width, height));
   }
-
-  BoundingBox scaleBoundingBox(
-          BoundingBox box, double widthScale, double heightScale) =>
-      BoundingBox(
-        topLeft:
-            Offset(box.topLeft.dx * widthScale, box.topLeft.dy * heightScale),
-        size: Size(box.size.width * widthScale, box.size.height * heightScale),
-      );
 }

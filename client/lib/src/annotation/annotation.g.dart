@@ -21,18 +21,18 @@ Map<String, dynamic> _$$_BoundingBoxToJson(_$_BoundingBox instance) =>
 
 _$_Annotation _$$_AnnotationFromJson(Map<String, dynamic> json) =>
     _$_Annotation(
-      annotationJobID: json['annotationJobID'] as String,
-      boundingBoxes: (json['boundingBoxes'] as List<dynamic>)
-          .map((e) => BoundingBox.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      annotatedOn: DateTime.parse(json['annotatedOn'] as String),
+      annotationJobID: json['AnnotationJobID'] as String,
+      boundingBoxes: const BoundingBoxesConverter()
+          .fromJson(json['BoundingBoxes'] as String),
+      annotatedOn: DateTime.parse(json['AnnotatedOn'] as String),
     );
 
 Map<String, dynamic> _$$_AnnotationToJson(_$_Annotation instance) =>
     <String, dynamic>{
-      'annotationJobID': instance.annotationJobID,
-      'boundingBoxes': instance.boundingBoxes,
-      'annotatedOn': instance.annotatedOn.toIso8601String(),
+      'AnnotationJobID': instance.annotationJobID,
+      'BoundingBoxes':
+          const BoundingBoxesConverter().toJson(instance.boundingBoxes),
+      'AnnotatedOn': instance.annotatedOn.toIso8601String(),
     };
 
 _$_AnnotationJob _$$_AnnotationJobFromJson(Map<String, dynamic> json) =>

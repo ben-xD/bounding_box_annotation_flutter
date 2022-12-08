@@ -182,8 +182,12 @@ Annotation _$AnnotationFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Annotation {
+  @JsonKey(name: 'AnnotationJobID')
   String get annotationJobID => throw _privateConstructorUsedError;
+  @BoundingBoxesConverter()
+  @JsonKey(name: 'BoundingBoxes')
   List<BoundingBox> get boundingBoxes => throw _privateConstructorUsedError;
+  @JsonKey(name: 'AnnotatedOn')
   DateTime get annotatedOn => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -199,9 +203,13 @@ abstract class $AnnotationCopyWith<$Res> {
       _$AnnotationCopyWithImpl<$Res, Annotation>;
   @useResult
   $Res call(
-      {String annotationJobID,
-      List<BoundingBox> boundingBoxes,
-      DateTime annotatedOn});
+      {@JsonKey(name: 'AnnotationJobID')
+          String annotationJobID,
+      @BoundingBoxesConverter()
+      @JsonKey(name: 'BoundingBoxes')
+          List<BoundingBox> boundingBoxes,
+      @JsonKey(name: 'AnnotatedOn')
+          DateTime annotatedOn});
 }
 
 /// @nodoc
@@ -247,9 +255,13 @@ abstract class _$$_AnnotationCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String annotationJobID,
-      List<BoundingBox> boundingBoxes,
-      DateTime annotatedOn});
+      {@JsonKey(name: 'AnnotationJobID')
+          String annotationJobID,
+      @BoundingBoxesConverter()
+      @JsonKey(name: 'BoundingBoxes')
+          List<BoundingBox> boundingBoxes,
+      @JsonKey(name: 'AnnotatedOn')
+          DateTime annotatedOn});
 }
 
 /// @nodoc
@@ -288,18 +300,25 @@ class __$$_AnnotationCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_Annotation implements _Annotation {
   const _$_Annotation(
-      {required this.annotationJobID,
-      required final List<BoundingBox> boundingBoxes,
-      required this.annotatedOn})
+      {@JsonKey(name: 'AnnotationJobID')
+          required this.annotationJobID,
+      @BoundingBoxesConverter()
+      @JsonKey(name: 'BoundingBoxes')
+          required final List<BoundingBox> boundingBoxes,
+      @JsonKey(name: 'AnnotatedOn')
+          required this.annotatedOn})
       : _boundingBoxes = boundingBoxes;
 
   factory _$_Annotation.fromJson(Map<String, dynamic> json) =>
       _$$_AnnotationFromJson(json);
 
   @override
+  @JsonKey(name: 'AnnotationJobID')
   final String annotationJobID;
   final List<BoundingBox> _boundingBoxes;
   @override
+  @BoundingBoxesConverter()
+  @JsonKey(name: 'BoundingBoxes')
   List<BoundingBox> get boundingBoxes {
     if (_boundingBoxes is EqualUnmodifiableListView) return _boundingBoxes;
     // ignore: implicit_dynamic_type
@@ -307,6 +326,7 @@ class _$_Annotation implements _Annotation {
   }
 
   @override
+  @JsonKey(name: 'AnnotatedOn')
   final DateTime annotatedOn;
 
   @override
@@ -348,18 +368,26 @@ class _$_Annotation implements _Annotation {
 
 abstract class _Annotation implements Annotation {
   const factory _Annotation(
-      {required final String annotationJobID,
-      required final List<BoundingBox> boundingBoxes,
-      required final DateTime annotatedOn}) = _$_Annotation;
+      {@JsonKey(name: 'AnnotationJobID')
+          required final String annotationJobID,
+      @BoundingBoxesConverter()
+      @JsonKey(name: 'BoundingBoxes')
+          required final List<BoundingBox> boundingBoxes,
+      @JsonKey(name: 'AnnotatedOn')
+          required final DateTime annotatedOn}) = _$_Annotation;
 
   factory _Annotation.fromJson(Map<String, dynamic> json) =
       _$_Annotation.fromJson;
 
   @override
+  @JsonKey(name: 'AnnotationJobID')
   String get annotationJobID;
   @override
+  @BoundingBoxesConverter()
+  @JsonKey(name: 'BoundingBoxes')
   List<BoundingBox> get boundingBoxes;
   @override
+  @JsonKey(name: 'AnnotatedOn')
   DateTime get annotatedOn;
   @override
   @JsonKey(ignore: true)

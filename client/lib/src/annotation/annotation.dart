@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:ui';
 
 import 'package:banananator/src/annotation/json/offset.dart';
@@ -27,9 +28,13 @@ class BoundingBox with _$BoundingBox {
 @freezed
 class Annotation with _$Annotation {
   const factory Annotation(
-      {required String annotationJobID,
-      required List<BoundingBox> boundingBoxes,
-      required DateTime annotatedOn}) = _Annotation;
+      {@JsonKey(name: 'AnnotationJobID')
+          required String annotationJobID,
+      @BoundingBoxesConverter()
+      @JsonKey(name: 'BoundingBoxes')
+          required List<BoundingBox> boundingBoxes,
+      @JsonKey(name: 'AnnotatedOn')
+          required DateTime annotatedOn}) = _Annotation;
 
   factory Annotation.fromJson(Map<String, Object?> json) =>
       _$AnnotationFromJson(json);
@@ -44,4 +49,19 @@ class AnnotationJob with _$AnnotationJob {
 
   factory AnnotationJob.fromJson(Map<String, Object?> json) =>
       _$AnnotationJobFromJson(json);
+}
+
+class BoundingBoxesConverter extends JsonConverter<List<BoundingBox>, String> {
+  const BoundingBoxesConverter();
+
+  @override
+  List<BoundingBox> fromJson(String json) {
+    final elements = jsonDecode(json) as List<dynamic>;
+    return elements.map((e) => BoundingBox.fromJson(e)).toList();
+  }
+
+  @override
+  String toJson(List<BoundingBox> object) {
+    return jsonEncode(object.map((e) => e.toJson()).toList());
+  }
 }

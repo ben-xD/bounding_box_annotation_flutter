@@ -30,6 +30,10 @@ class AnnotationService {
     return networkRepository.submitAnnotation(annotation);
   }
 
+  Future<List<Annotation>> getAnnotations() async {
+    return networkRepository.getAnnotations();
+  }
+
   FutureOr<AnnotationJob?> getNextJob() async {
     // if (_inCompleteJobByJobId.isNotEmpty) {
     //   await fetchJobs();
@@ -59,6 +63,10 @@ class AnnotationService {
     }
     throw Exception("Job $jobId was not found");
     // throw AnnotationRepositoryException
+  }
+
+  Future<void> deleteAnnotations() async {
+    await networkRepository.deleteAnnotations();
   }
 }
 

@@ -4,4 +4,12 @@ type AnnotationJobDb = {
     ImageFileName: string
 }
 
-export type {AnnotationJobDb};
+type AnnotationDb = {
+    id: string,
+    AnnotatedOn: string,
+    ServerReceivedOn: string,
+    AnnotationJobID: string,
+    BoundingBoxes: string,
+}
+
+export type {AnnotationJobDb, AnnotationDb};
