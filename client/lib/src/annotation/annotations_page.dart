@@ -82,7 +82,9 @@ class AnnotationsPage extends HookWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () async {
               final newAnnotations = await service.getAnnotations();
-              annotations.value = newAnnotations;
+              newAnnotations
+                  .sort((a, b) => a.annotatedOn.compareTo(b.annotatedOn));
+              annotations.value = newAnnotations.reversed.toList();
             },
           ),
           IconButton(
@@ -117,6 +119,7 @@ class AnnotationsPage extends HookWidget {
         children: [
           SelectableText("Annotations.",
               style: Theme.of(context).textTheme.headline5),
+          const SelectableText("Most recent shown first."),
           SelectableText(
               "There are ${annotations.value.length} ${(annotations.value.length == 1) ? "annotation" : "annotations"} uploaded by all users."),
           const SelectableText(
@@ -151,8 +154,8 @@ class AnnotationsPage extends HookWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SelectableText(
-                              "Created on: ${timeago.format(e.createdOn)}"),
-                          SizedBox(height: 8),
+                              "Requested ${timeago.format(e.createdOn)}"),
+                          const SizedBox(height: 8),
                           Image.network(
                             e.imageUrl,
                             width: 160,

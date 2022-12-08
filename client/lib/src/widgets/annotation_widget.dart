@@ -45,32 +45,25 @@ class AnnotationWidget extends HookWidget {
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor, borderRadius: BorderRadius.circular(8)),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Text(e.annotationJobID),
-              Text(timeago.format(annotation.annotatedOn)),
-              const SizedBox(height: 16),
-              IntrinsicWidth(
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      (job.value == null)
-                          ? const SizedBox.shrink()
-                          : ScaledBoundingBoxesWidget(
-                              annotation: annotation,
-                              imageUrl: job.value!.imageUrl,
-                            ),
-                    ]),
-              ),
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Text(e.annotationJobID),
+          Text(timeago.format(annotation.annotatedOn)),
+          const SizedBox(height: 16),
+          IntrinsicWidth(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  (job.value == null)
+                      ? const SizedBox.shrink()
+                      : ScaledBoundingBoxesWidget(
+                          annotation: annotation,
+                          imageUrl: job.value!.imageUrl,
+                        ),
+                ]),
           ),
-        ),
+        ],
       ),
     );
   }
