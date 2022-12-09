@@ -1,3 +1,4 @@
+import 'package:banananator/src/annotation/annotation_local_repository.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/routes.dart';
@@ -11,12 +12,13 @@ import 'src/app.dart';
 void main() async {
   setPathUrlStrategy();
   registerServices();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 void registerServices() {
   final getIt = GetIt.instance;
-  getIt.registerSingletonAsync<GoRouter>(() async => createRouterConfig());
+  getIt.registerSingleton<GoRouter>(createRouterConfig());
   getIt.registerSingletonAsync<AnnotationService>(() async =>
-      AnnotationService(networkRepository: AnnotationNetworkRepository()));
+      AnnotationService(networkRepository: AnnotationNetworkRepository(),
+      localRepository: await AnnotationLocalRepository.init()));
 }

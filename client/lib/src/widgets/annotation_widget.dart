@@ -1,4 +1,4 @@
-import 'package:banananator/src/annotation/annotation.dart';
+import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/annotation/bounding_box_widget.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +41,8 @@ class AnnotationWidget extends HookWidget {
       service
           .getJob(annotation.annotationJobID)
           .then((value) => job.value = value);
-    });
+      return null;
+    }, []);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),

@@ -1,9 +1,14 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'dart:convert';
 import 'dart:ui';
 
 import 'package:banananator/src/annotation/json/offset.dart';
 import 'package:banananator/src/annotation/json/size.dart';
+import 'package:banananator/src/persistence.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 // Unusual syntax in this file just follows https://pub.dev/packages/freezed#creating-a-model-using-freezed
 // to help generate code like converting into JSON.
@@ -13,11 +18,14 @@ part 'annotation.freezed.dart';
 part 'annotation.g.dart';
 
 @freezed
+@HiveType(typeId: HiveTypeIds.boundingBox)
 class BoundingBox with _$BoundingBox {
   /// Normalised coordinates, from 0 to 1.
 
   const factory BoundingBox({
+    @HiveField(0)
     @OffsetToJson() required Offset topLeft,
+    @HiveField(1)
     @SizeToJson() required Size size,
   }) = _BoundingBox;
 
@@ -26,15 +34,22 @@ class BoundingBox with _$BoundingBox {
 }
 
 @freezed
+@HiveType(typeId: HiveTypeIds.annotation)
 class Annotation with _$Annotation {
   const factory Annotation(
       {@JsonKey(name: 'AnnotationJobID')
+      @HiveField(0)
           required String annotationJobID,
       @BoundingBoxesConverter()
       @JsonKey(name: 'BoundingBoxes')
+      @HiveField(1)
           required List<BoundingBox> boundingBoxes,
       @JsonKey(name: 'AnnotatedOn')
-          required DateTime annotatedOn}) = _Annotation;
+      @HiveField(2)
+          required DateTime annotatedOn,
+        @JsonKey(ignore: true)
+        @HiveField(3)
+        String? localId}) = _Annotation;
 
   factory Annotation.fromJson(Map<String, Object?> json) =>
       _$AnnotationFromJson(json);

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:banananator/src/annotation/annotation.dart';
+import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:banananator/src/constants.dart';
 import 'package:http/http.dart' as http;
 
@@ -18,7 +18,7 @@ class AnnotationNetworkRepository {
     }
   }
 
-  Future<bool> submitAnnotation(Annotation annotation) async {
+  Future<void> submitAnnotation(Annotation annotation) async {
     final endpoint = Constants.apiUrl.resolve("api/annotations");
     final json = annotation.toJson();
     final jsonString = jsonEncode(json);
@@ -27,7 +27,6 @@ class AnnotationNetworkRepository {
     } on http.ClientException catch (e) {
       throw RepositoryException(e.message);
     }
-    return true;
   }
 
   Future<List<Annotation>> getAnnotations() async {

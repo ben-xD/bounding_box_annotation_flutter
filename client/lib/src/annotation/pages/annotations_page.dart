@@ -1,8 +1,10 @@
 import 'dart:async';
 
-import 'package:banananator/src/annotation/annotation.dart';
+import 'package:another_flushbar/flushbar.dart';
+import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
+import 'package:banananator/src/unsubmitted_jobs_sliver.dart';
 import 'package:banananator/src/connectivity/connectivity.dart';
 import 'package:banananator/src/constants.dart';
 import 'package:banananator/src/routes.dart';
@@ -18,76 +20,93 @@ class AnnotationsPage extends HookWidget {
   AnnotationsPage({super.key});
 
   final getIt = GetIt.instance;
-  late final AnnotationService service = getIt();
+  late final Future<AnnotationService> service = getIt.getAsync();
 
-  ScaffoldFeatureController<SnackBar, SnackBarClosedReason>?
-      _persistentDisconnectedSnackBarController;
-
-  _onConnectedChange(BuildContext context, ValueNotifier<bool?> connected) {
+  _onConnectedChange(BuildContext context, ValueNotifier<bool?> connected,
+      IsMounted isMounted, ValueNotifier<Flushbar?> networkWarningFlushbar) {
     if (connected.value == null) return () {};
     if (!connected.value!) {
-      const snackBar = SnackBar(
-        content: Text("You've lost your internet connection."),
-        backgroundColor: Colors.red,
-        duration: Duration(days: 365),
+      networkWarningFlushbar.value = Flushbar(
+        title: "👀 Warning",
+        message:
+            "You've lost your internet connection. You can still use the app to annotate previously downloaded jobs.",
+        duration: const Duration(days: 365),
+        isDismissible: false,
+        backgroundColor: Colors.yellow[900]!,
       );
-      _persistentDisconnectedSnackBarController =
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      networkWarningFlushbar.value?.show(context);
     } else {
       // If never got disconnected, don't bother showing reconnection.
-      if (_persistentDisconnectedSnackBarController == null) return;
-      _persistentDisconnectedSnackBarController!.close();
-      const snackBar = SnackBar(
-        content: Text("You got your internet connection back."),
+      final flushbarShowing = networkWarningFlushbar.value?.isShowing() ?? false;
+      if (!flushbarShowing) return;
+      networkWarningFlushbar.value?.dismiss();
+      Flushbar(
+        title: "🎂 Hooray!",
+        message: "You got your internet connection back.",
+        duration: const Duration(seconds: 8),
         backgroundColor: Colors.green,
-        duration: Duration(seconds: 6),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      ).show(context);
     }
+  }
+
+  void showNotSubmittedWarning(BuildContext context, IsMounted isMounted) {
+    if (!isMounted()) return;
+    Flushbar(
+      message:
+          "Your last annotation was only saved locally because of a network issue.",
+      duration: const Duration(seconds: 8),
+      backgroundColor: Colors.red[900]!,
+    ).show(context);
+  }
+
+  // TODO refactor into ViewModel
+  Set<String> errors = {};
+  bool errorShown = false;
+
+  FutureOr<T> showError<T>(Object anyError, T result, BuildContext context,
+      IsMounted isMounted) async {
+    // Expecting only RepositoryException
+    if (anyError.runtimeType != RepositoryException) return result;
+    final error = anyError as RepositoryException;
+    errors.add(error.message);
+    if (!isMounted()) return result;
+    if (errorShown) return result;
+    errorShown = true;
+    showDialog(
+            context: context,
+            builder: (BuildContext context) => ErrorAlertDialog(errors: errors))
+        .then((_) => errorShown = false);
+    return result;
   }
 
   @override
   Widget build(BuildContext context) {
     final isMounted = useIsMounted();
+    final networkWarningFlushbar = useState<Flushbar?>(null);
     final annotationJobs = useState<List<AnnotationJob>>([]);
     final annotations = useState<List<Annotation>>([]);
     final connected = useIsNetworkConnected(uri: Constants.apiUrl);
 
-    Set<String> errors = {};
-    bool errorShown = false;
-    FutureOr<T> showError<T>(Object anyError, T result) async {
-      // Expecting only RepositoryException
-      if (anyError.runtimeType != RepositoryException) return result;
-      final error = anyError as RepositoryException;
-      errors.add(error.message);
-      if (!isMounted()) return result;
-      if (errorShown) return result;
-      errorShown = true;
-      showDialog(
-          context: context,
-          builder: (BuildContext context) =>
-              ErrorAlertDialog(errors: errors)).then((_) => errorShown = false);
-      return result;
-    }
-
     Future<void> updateState() async {
       // Try to get annotations to annotate.
-      service
+      (await service)
           .fetchJobs()
           .then((jobs) => annotationJobs.value = jobs)
-          .catchError((e) => showError(e, <AnnotationJob>[]), test: (o) {
+          .catchError(
+              (e) => showError(e, <AnnotationJob>[], context, isMounted),
+              test: (o) {
         return o.runtimeType == RepositoryException;
       });
-      service
+      (await service)
           .getAnnotations()
           .then((a) => annotations.value = a)
-          .catchError((e) => showError(e, <Annotation>[]));
+          .catchError((e) => showError(e, <Annotation>[], context, isMounted));
     }
 
     useEffect(() {
       updateState();
       // Update UI if connection changes
-      connectionListener() => _onConnectedChange(context, connected);
+      connectionListener() => _onConnectedChange(context, connected, isMounted, networkWarningFlushbar);
       connected.addListener(connectionListener);
       return () {
         connected.removeListener(connectionListener);
@@ -96,9 +115,6 @@ class AnnotationsPage extends HookWidget {
 
     useEffect(() {
       return null;
-      // return () {
-      //   snackBarController.close();
-      // };
     }, []);
 
     void onStartAnnotating() {
@@ -112,14 +128,13 @@ class AnnotationsPage extends HookWidget {
       appBar: AppBar(
         title: const Text("Banananator 🍌📸"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: updateState
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: updateState),
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () async {
-              await service.deleteAnnotations().catchError((e) => showError(e, null));
+              (await service)
+                  .deleteAnnotations()
+                  .catchError((e) => showError(e, null, context, isMounted));
               annotations.value = [];
             },
           ),
@@ -148,6 +163,7 @@ class AnnotationsPage extends HookWidget {
         children: [
           SelectableText("Annotations.",
               style: Theme.of(context).textTheme.headline5),
+          UnsubmittedJobsSliver(),
           const SelectableText("Most recent shown first."),
           SelectableText(
               "There are ${annotations.value.length} ${(annotations.value.length == 1) ? "annotation" : "annotations"} uploaded by all users."),

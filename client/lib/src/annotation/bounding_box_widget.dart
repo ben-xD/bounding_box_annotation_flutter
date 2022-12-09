@@ -1,4 +1,4 @@
-import 'package:banananator/src/annotation/annotation.dart';
+import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:flutter/material.dart';
 
 class FinishedBoundingBox {

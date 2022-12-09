@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:banananator/src/annotation/annotation.dart';
+import 'package:another_flushbar/flushbar.dart';
+import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/annotation/bounding_box_widget.dart';
@@ -10,17 +11,18 @@ import 'package:banananator/src/utilities/error_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 
 class AnnotatePage extends StatefulWidget {
   static const routeName = '/annotation';
   final getIt = GetIt.instance;
-  late final AnnotationService service = getIt();
+  late final Future<AnnotationService> serviceFuture = getIt.getAsync();
 
   late final String jobId;
   late final Future<AnnotationJob> job;
 
   AnnotatePage({required this.jobId, super.key}) {
-    job = service.getJob(jobId);
+    job = serviceFuture.then((s) => s.getJob(jobId));
   }
 
   @override
@@ -62,11 +64,12 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
   onSkip() async {
     final jobId = (await widget.job).id;
-    widget.service.skipAnnotationJob(jobId);
+    (await widget.serviceFuture).skipAnnotationJob(jobId);
     navigateToNextJob();
   }
 
   bool errorShown = false;
+
   FutureOr<T> showError<T>(Object anyError, T result) async {
     // Expecting only RepositoryException
     if (anyError.runtimeType != RepositoryException) return result;
@@ -75,9 +78,10 @@ class _AnnotatePageState extends State<AnnotatePage> {
     if (errorShown) return result;
     errorShown = true;
     showDialog(
-        context: context,
-        builder: (BuildContext context) =>
-            ErrorAlertDialog(errors: {error.message})).then((_) => errorShown = false);
+            context: context,
+            builder: (BuildContext context) =>
+                ErrorAlertDialog(errors: {error.message}))
+        .then((_) => errorShown = false);
     return result;
   }
 
@@ -89,14 +93,30 @@ class _AnnotatePageState extends State<AnnotatePage> {
     final annotation = Annotation(
         annotationJobID: job.id,
         boundingBoxes: boxes,
-        annotatedOn: DateTime.now());
-    final success = await widget.service.submitAnnotation(annotation).catchError((e) => showError(e, false));
-    if (success) await navigateToNextJob();
+        annotatedOn: DateTime.now(),
+        localId: const Uuid().toString());
+    final submitted = await (await widget.serviceFuture)
+        .submitAnnotation(annotation)
+        .catchError((e) => showError(e, false));
+    if (!submitted) {
+      showNotSubmittedWarning();
+    }
+    await navigateToNextJob();
+  }
+
+  void showNotSubmittedWarning() {
+    if (!mounted) return;
+    Flushbar(
+      message:
+          "Your last annotation was only saved locally because of a network issue.",
+      duration: const Duration(seconds: 8),
+      backgroundColor: Colors.red[900]!,
+    ).show(context);
   }
 
   navigateToNextJob() async {
     finishedBoundingBoxes = {};
-    final nextJob = await widget.service.getNextJob();
+    final nextJob = await (await widget.serviceFuture).getNextJob();
     if (!mounted) return;
     if (nextJob == null) {
       context.go(Routes.root); // TODO navigate to a "complete page"
@@ -150,7 +170,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
                   body: Align(child: CircularProgressIndicator()));
             }
             if (snapshot.hasError) {
-              return Scaffold(body: SelectableText("Error. ${snapshot.error}"));
+              return Scaffold(body: SelectableText("Error: ${snapshot.error}"));
             }
             if (!snapshot.hasData) {
               return const SelectableText("No job found");
@@ -200,10 +220,10 @@ class _AnnotatePageState extends State<AnnotatePage> {
                                   ),
                             ...finishedBoundingBoxes.values
                                 .map((e) => BoundingBoxWidget(
-                              box: e.box,
-                              color: e.color,
-                              scaleTo: imageSize,
-                            ))
+                                      box: e.box,
+                                      color: e.color,
+                                      scaleTo: imageSize,
+                                    ))
                                 .toList(),
                           ],
                         ),
@@ -285,7 +305,8 @@ class _AnnotatePageState extends State<AnnotatePage> {
           .toList();
     }
     return Container(
-      constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height * 0.16),
+      constraints:
+          BoxConstraints(minHeight: MediaQuery.of(context).size.height * 0.16),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

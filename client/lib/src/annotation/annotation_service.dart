@@ -1,14 +1,22 @@
 import 'dart:async';
+import 'package:banananator/src/annotation/annotation_local_repository.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
+import 'package:flutter/material.dart';
 
-import 'annotation.dart';
+import 'models/annotation.dart';
 
-class AnnotationService {
+class AnnotationService extends ChangeNotifier {
   final AnnotationNetworkRepository networkRepository;
+  final AnnotationLocalRepository localRepository;
 
   final Map<String, AnnotationJob> _inCompleteJobByJobId = {};
 
-  AnnotationService({required this.networkRepository});
+  AnnotationService(
+      {required this.networkRepository, required this.localRepository});
+
+  Iterable<Annotation> getNotSubmittedAnnotations() {
+    return localRepository.getAnnotations();
+  }
 
   // Future<List<Image>> downloadImages(int maxQuantity) {
   //
@@ -18,16 +26,22 @@ class AnnotationService {
   //
   // }
 
-  // final StreamController<AnnotationJob> _jobsStreamController = StreamController();
-  // Stream<AnnotationJob> get jobs => _jobsStreamController.stream;
-
   Future<void> skipAnnotationJob(jobId) async {
     _inCompleteJobByJobId.remove(jobId);
   }
 
   Future<bool> submitAnnotation(Annotation annotation) async {
     _inCompleteJobByJobId.remove(annotation.annotationJobID);
-    return networkRepository.submitAnnotation(annotation);
+    localRepository.saveAnnotation(annotation); // Persist it in case it errors.
+    try {
+      await networkRepository.submitAnnotation(annotation);
+      localRepository.removeAnnotation(annotation);
+      notifyListeners();
+      return true;
+    } on RepositoryException catch (_) {
+      notifyListeners();
+      return false;
+    }
   }
 
   Future<List<Annotation>> getAnnotations() async {
@@ -37,9 +51,6 @@ class AnnotationService {
   }
 
   FutureOr<AnnotationJob?> getNextJob() async {
-    // if (_inCompleteJobByJobId.isNotEmpty) {
-    //   await fetchJobs();
-    // }
     return _inCompleteJobByJobId.get();
   }
 
@@ -61,14 +72,28 @@ class AnnotationService {
     }
     final job = _inCompleteJobByJobId[jobId];
     if (job != null) {
-    return job;
+      return job;
     }
-    throw Exception("Job $jobId was not found");
-    // throw AnnotationRepositoryException
+    throw RepositoryException("Job $jobId was not found");
   }
 
   Future<void> deleteAnnotations() async {
     await networkRepository.deleteAnnotations();
+  }
+
+  /// Returns number of annotations that failed to upload.
+  Future<int> submitNotSubmittedAnnotations() async {
+    final annotations = localRepository.getAnnotations();
+    final List<Future<bool>> successesFuture = [];
+    for (final annotation in annotations) {
+      successesFuture.add(submitAnnotation(annotation));
+    }
+    final successes = await Future.wait(successesFuture);
+    notifyListeners();
+    return successes
+        .where((e) => !e)
+        .toList()
+        .length; // Number of failed requests
   }
 }
 

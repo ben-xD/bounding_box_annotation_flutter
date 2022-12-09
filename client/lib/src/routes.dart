@@ -1,5 +1,5 @@
-import 'package:banananator/src/annotation/annotate_page.dart';
-import 'package:banananator/src/annotation/annotations_page.dart';
+import 'package:banananator/src/annotation/pages/annotate_page.dart';
+import 'package:banananator/src/annotation/pages/annotations_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
