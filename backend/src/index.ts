@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const publicBucketUri = new URL("https://pub-b49d48ececa047ddbb7604b6bcd00006.r2.dev");
 const defaultCorsDomain = "banananator.pages.dev";
+const secondaryCorsDomain = "banananator-fragile.pages.dev";
 export interface Env {
 	DB: D1Database;
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -24,12 +25,20 @@ import { clientError, serverError } from './errors';
 const app = new Hono<{ Bindings: Env }>()
 
 const createCorsOrigin = (origin: string): string => {
+	console.info(`Origin visited: ${origin}`)
 	// Need to accept 'http://localhost:58159' with abtrary ports.
 	const regex = /http:\/\/localhost:\d+/;
 	const isLocalhost = origin.match(regex)
 	if (isLocalhost) return origin;
+	// Handle subdomains
 	if (origin.endsWith(`.${defaultCorsDomain}`)) return origin;
-	return `https://${defaultCorsDomain}`;
+	if (origin.endsWith(`.${secondaryCorsDomain}`)) return origin;
+	// Handle exact paths:
+	const defaultCorsDomainHttps = `https://${defaultCorsDomain}`
+	const secondaryCorsDomainHttps = `https://${secondaryCorsDomain}`
+	if (origin == defaultCorsDomainHttps) return defaultCorsDomainHttps;
+	if (origin == secondaryCorsDomainHttps) return secondaryCorsDomainHttps;
+	return defaultCorsDomainHttps;
 }
 app.use('/api/*', cors({
 	origin: createCorsOrigin

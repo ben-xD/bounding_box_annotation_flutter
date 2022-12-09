@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:banananator/src/annotation/annotation.dart';
+import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/annotation/bounding_box_widget.dart';
 import 'package:banananator/src/routes.dart';
+import 'package:banananator/src/utilities/error_alert_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -64,6 +66,21 @@ class _AnnotatePageState extends State<AnnotatePage> {
     navigateToNextJob();
   }
 
+  bool errorShown = false;
+  FutureOr<T> showError<T>(Object anyError, T result) async {
+    // Expecting only RepositoryException
+    if (anyError.runtimeType != RepositoryException) return result;
+    final error = anyError as RepositoryException;
+    if (!mounted) return result;
+    if (errorShown) return result;
+    errorShown = true;
+    showDialog(
+        context: context,
+        builder: (BuildContext context) =>
+            ErrorAlertDialog(errors: {error.message})).then((_) => errorShown = false);
+    return result;
+  }
+
   Future<void> onSubmitAnnotation() async {
     final job = await widget.job;
     imageSizeWhenDrawn = Size.zero;
@@ -73,8 +90,8 @@ class _AnnotatePageState extends State<AnnotatePage> {
         annotationJobID: job.id,
         boundingBoxes: boxes,
         annotatedOn: DateTime.now());
-    widget.service.submitAnnotation(annotation);
-    await navigateToNextJob();
+    final success = await widget.service.submitAnnotation(annotation).catchError((e) => showError(e, false));
+    if (success) await navigateToNextJob();
   }
 
   navigateToNextJob() async {

@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:banananator/src/annotation/annotation.dart';
+import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/connectivity/connectivity.dart';
 import 'package:banananator/src/constants.dart';
 import 'package:banananator/src/routes.dart';
+import 'package:banananator/src/utilities/error_alert_dialog.dart';
 import 'package:banananator/src/widgets/annotation_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -49,14 +53,44 @@ class AnnotationsPage extends HookWidget {
     final annotations = useState<List<Annotation>>([]);
     final connected = useIsNetworkConnected(uri: Constants.apiUrl);
 
-    useEffect(() {
+    Set<String> errors = {};
+    bool errorShown = false;
+    FutureOr<T> showError<T>(Object anyError, T result) async {
+      // Expecting only RepositoryException
+      if (anyError.runtimeType != RepositoryException) return result;
+      final error = anyError as RepositoryException;
+      errors.add(error.message);
+      if (!isMounted()) return result;
+      if (errorShown) return result;
+      errorShown = true;
+      showDialog(
+          context: context,
+          builder: (BuildContext context) =>
+              ErrorAlertDialog(errors: errors)).then((_) => errorShown = false);
+      return result;
+    }
+
+    Future<void> updateState() async {
       // Try to get annotations to annotate.
-      service.fetchJobs().then((jobs) => annotationJobs.value = jobs);
-      service.getAnnotations().then((a) => annotations.value = a);
-      handler() => _onConnectedChange(context, connected);
-      connected.addListener(handler);
+      service
+          .fetchJobs()
+          .then((jobs) => annotationJobs.value = jobs)
+          .catchError((e) => showError(e, <AnnotationJob>[]), test: (o) {
+        return o.runtimeType == RepositoryException;
+      });
+      service
+          .getAnnotations()
+          .then((a) => annotations.value = a)
+          .catchError((e) => showError(e, <Annotation>[]));
+    }
+
+    useEffect(() {
+      updateState();
+      // Update UI if connection changes
+      connectionListener() => _onConnectedChange(context, connected);
+      connected.addListener(connectionListener);
       return () {
-        connected.removeListener(handler);
+        connected.removeListener(connectionListener);
       };
     }, [isMounted]);
 
@@ -80,17 +114,12 @@ class AnnotationsPage extends HookWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () async {
-              final newAnnotations = await service.getAnnotations();
-              newAnnotations
-                  .sort((a, b) => a.annotatedOn.compareTo(b.annotatedOn));
-              annotations.value = newAnnotations.reversed.toList();
-            },
+            onPressed: updateState
           ),
           IconButton(
             icon: const Icon(Icons.delete),
             onPressed: () async {
-              await service.deleteAnnotations();
+              await service.deleteAnnotations().catchError((e) => showError(e, null));
               annotations.value = [];
             },
           ),

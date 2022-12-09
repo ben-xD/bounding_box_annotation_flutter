@@ -25,13 +25,15 @@ class AnnotationService {
     _inCompleteJobByJobId.remove(jobId);
   }
 
-  Future<void> submitAnnotation(Annotation annotation) async {
+  Future<bool> submitAnnotation(Annotation annotation) async {
     _inCompleteJobByJobId.remove(annotation.annotationJobID);
     return networkRepository.submitAnnotation(annotation);
   }
 
   Future<List<Annotation>> getAnnotations() async {
-    return networkRepository.getAnnotations();
+    final annotations = await networkRepository.getAnnotations();
+    annotations.sort((a, b) => a.annotatedOn.compareTo(b.annotatedOn));
+    return annotations.reversed.toList();
   }
 
   FutureOr<AnnotationJob?> getNextJob() async {

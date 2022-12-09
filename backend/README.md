@@ -1,11 +1,15 @@
 # Backend for Banananator
 
+## Notes
+- An app that needs internet connection was published to `banananator-fragile.pages.dev`
+    - Published to a separate page/project by running `npx wrangler pages publish ../client/build/web --project-name=banananator-fragile`
 
 ## Useful commands:
 
 ### For backend
 - Run backend locally: `npx wrangler dev`
 - Deploy backend application: `npx wrangler publish`
+    - Read logs in realtime: `npx wrangler tail`
 - Reset database to `schema.sql`:
     - Reset preview database: `npx wrangler d1 execute banananator_preview --file schemas/schema.sql`
     - Reset production database: `npx wrangler d1 execute banananator --file schemas/schema.sql`
