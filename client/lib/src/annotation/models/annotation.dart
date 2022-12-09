@@ -56,11 +56,12 @@ class Annotation with _$Annotation {
 }
 
 @freezed
+@HiveType(typeId: HiveTypeIds.annotationJob)
 class AnnotationJob with _$AnnotationJob {
   const factory AnnotationJob(
-      String id,
-      @JsonKey(name: 'ImageURL') String imageUrl,
-      @JsonKey(name: 'CreatedOn') DateTime createdOn) = _AnnotationJob;
+      @JsonKey(name: 'id') @HiveField(0) String id,
+      @JsonKey(name: 'ImageURL') @HiveField(1) String imageUrl,
+      @JsonKey(name: 'CreatedOn') @HiveField(2) DateTime createdOn) = _AnnotationJob;
 
   factory AnnotationJob.fromJson(Map<String, Object?> json) =>
       _$AnnotationJobFromJson(json);

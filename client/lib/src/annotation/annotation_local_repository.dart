@@ -8,15 +8,18 @@ class AnnotationLocalRepository {
   // Async constructor pattern, following https://stackoverflow.com/a/59304510/7365866
   AnnotationLocalRepository._init();
 
-  late Box<Annotation> _hiveBox;
+  late Box<Annotation> _annotationsBox;
+  late Box<AnnotationJob> _jobBox;
 
   _asyncInit() async {
-    _hiveBox = await Hive.openBox<Annotation>(HiveBoxes.annotations.name);
+    _annotationsBox = await Hive.openBox(HiveBoxes.annotations.name);
+    _jobBox = await Hive.openBox(HiveBoxes.annotationJobs.name);
   }
 
   static Future<AnnotationLocalRepository> init() async {
     await Hive.initFlutter();
     Hive.registerAdapter(AnnotationAdapter());
+    Hive.registerAdapter(AnnotationJobAdapter());
     Hive.registerAdapter(BoundingBoxAdapter());
     Hive.registerAdapter(SizeAdapter());
     Hive.registerAdapter(OffsetAdapter());
@@ -26,14 +29,20 @@ class AnnotationLocalRepository {
   }
 
   Iterable<Annotation> getAnnotations() {
-    return _hiveBox.values;
+    return _annotationsBox.values;
   }
 
   void saveAnnotation(Annotation annotation) {
-    _hiveBox.put(annotation.localId, annotation);
+    _annotationsBox.put(annotation.localId, annotation);
   }
 
   void removeAnnotation(Annotation annotation) {
-    _hiveBox.delete(annotation.localId);
+    _annotationsBox.delete(annotation.localId);
   }
+
+  getJobs() {
+    return _jobBox.values;
+  }
+
+  deleteAnnotations() => _annotationsBox.clear();
 }

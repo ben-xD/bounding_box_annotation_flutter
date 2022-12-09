@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:banananator/src/annotation/annotation_local_repository.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +11,10 @@ class AnnotationService extends ChangeNotifier {
   final AnnotationNetworkRepository networkRepository;
   final AnnotationLocalRepository localRepository;
 
-  final Map<String, AnnotationJob> _inCompleteJobByJobId = {};
+  final Map<String, AnnotationJob> _jobByJobId = {};
+  final _completedJobIds = <String>{};
+
+  int get jobsDownloaded => localRepository.getJobs().length;
 
   AnnotationService(
       {required this.networkRepository, required this.localRepository});
@@ -27,11 +32,11 @@ class AnnotationService extends ChangeNotifier {
   // }
 
   Future<void> skipAnnotationJob(jobId) async {
-    _inCompleteJobByJobId.remove(jobId);
+    _completedJobIds.add(jobId);
   }
 
   Future<bool> submitAnnotation(Annotation annotation) async {
-    _inCompleteJobByJobId.remove(annotation.annotationJobID);
+    _completedJobIds.add(annotation.annotationJobID);
     localRepository.saveAnnotation(annotation); // Persist it in case it errors.
     try {
       await networkRepository.submitAnnotation(annotation);
@@ -50,27 +55,39 @@ class AnnotationService extends ChangeNotifier {
     return annotations.reversed.toList();
   }
 
+  downloadAllJobs() async {
+    final jobs = await fetchJobs();
+    await _cacheImage(jobs);
+    notifyListeners();
+  }
+
+  Future<void> _cacheImage(Iterable<AnnotationJob> jobs) async {
+    // Download images in parallel:
+    final futures =
+        jobs.map((j) => networkRepository.downloadImage(j.imageUrl));
+    await Future.wait(futures);
+  }
+
   FutureOr<AnnotationJob?> getNextJob() async {
-    return _inCompleteJobByJobId.get();
+    // Take one that hasn't been completed:
+    final jobIds = _jobByJobId.keys.toSet().difference(_completedJobIds);
+    if (jobIds.isEmpty) return null;
+    return _jobByJobId[jobIds.first];
   }
 
   Future<List<AnnotationJob>> fetchJobs() async {
     final jobs = await networkRepository.fetchAnnotationJobs();
-    _saveJobsLocally(jobs);
+    for (final job in jobs) {
+      _jobByJobId[job.id] = job;
+    }
     return jobs;
   }
 
-  _saveJobsLocally(List<AnnotationJob> jobs) {
-    for (final job in jobs) {
-      _inCompleteJobByJobId[job.id] = job;
-    }
-  }
-
   Future<AnnotationJob> getJob(String jobId) async {
-    if (!_inCompleteJobByJobId.containsKey(jobId)) {
-      await fetchJobs();
+    if (!_jobByJobId.containsKey(jobId)) {
+      await fetchJobs(); // Doesn't exist locally, so fetch it.
     }
-    final job = _inCompleteJobByJobId[jobId];
+    final job = _jobByJobId[jobId];
     if (job != null) {
       return job;
     }
@@ -79,6 +96,7 @@ class AnnotationService extends ChangeNotifier {
 
   Future<void> deleteAnnotations() async {
     await networkRepository.deleteAnnotations();
+    await localRepository.deleteAnnotations();
   }
 
   /// Returns number of annotations that failed to upload.
@@ -94,6 +112,19 @@ class AnnotationService extends ChangeNotifier {
         .where((e) => !e)
         .toList()
         .length; // Number of failed requests
+  }
+
+  Future<void> uploadImage(String name, Uint8List bytes) async {
+    await networkRepository.uploadImage(name, bytes);
+  }
+
+  Future<void> deleteJob(String id) async {
+    try {
+      await networkRepository.deleteJob(id);
+      notifyListeners();
+    } on RepositoryException catch (_) {
+      notifyListeners();
+    }
   }
 }
 

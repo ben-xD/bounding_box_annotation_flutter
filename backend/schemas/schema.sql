@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS Annotations (
     ServerReceivedOn datetime NOT NULL,
     AnnotationJobID text NOT NULL,
     BoundingBoxes text NOT NULL,
-    FOREIGN KEY (AnnotationJobID) REFERENCES AnnotationJobs(id)
+    FOREIGN KEY (AnnotationJobID) REFERENCES AnnotationJobs(id) ON DELETE CASCADE
 );
 
 -- 2. Add data for annotation jobs

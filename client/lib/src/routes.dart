@@ -1,5 +1,6 @@
 import 'package:banananator/src/annotation/pages/annotate_page.dart';
-import 'package:banananator/src/annotation/pages/annotations_page.dart';
+import 'package:banananator/src/annotation/pages/missing_data_page.dart';
+import 'package:banananator/src/home/home_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -20,21 +21,16 @@ GoRouter createRouterConfig() {
     // initialLocation: "/${Routes.annotate}",
     initialLocation: Routes.root,
     restorationScopeId: "app",
+    errorBuilder: (context, state) => const ErrorPage(),
     routes: [
       GoRoute(
           path: Routes.root,
-          builder: (context, state) => AnnotationsPage(),
+          builder: (context, state) => HomePage(),
           routes: [
             GoRoute(
               path: "${Routes.annotate}/:jobId",
               builder: (context, state) {
-                final jobId = state.params["jobId"];
-                if (jobId != null) {
-                  return AnnotatePage(
-                    jobId: jobId,
-                  );
-                }
-                return const Scaffold(body: Text("Couldn't find that job."));
+                return AnnotatePage(jobId: state.params["jobId"]!);
               },
             ),
           ]),

@@ -1,10 +1,61 @@
 import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/annotation/bounding_box_widget.dart';
+import 'package:banananator/src/unsubmitted_jobs_sliver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:timeago/timeago.dart' as timeago;
+
+class AnnotationsSliver extends HookWidget {
+  late final ValueNotifier<List<Annotation>> annotationsValueNotifier;
+
+  AnnotationsSliver(
+      {required ValueNotifier<List<Annotation>> annotations, super.key}) {
+    annotationsValueNotifier = annotations;
+  }
+
+  final getIt = GetIt.instance;
+  late final AnnotationService service = getIt();
+
+  @override
+  Widget build(BuildContext context) {
+    final isMounted = useIsMounted();
+    final annotations = useValueListenable(annotationsValueNotifier);
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              SelectableText("Annotations.",
+                  style: Theme.of(context).textTheme.headline5),
+              IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () async {
+                  await service
+                      .deleteAnnotations();
+                },
+              )
+            ],
+          ),
+          UnsubmittedJobsSliver(),
+          const SelectableText("Most recent shown first."),
+          SelectableText(
+              "There are ${annotations.length} ${(annotations.length == 1) ? "annotation" : "annotations"} uploaded by all users."),
+          const SelectableText(
+              "The same image may appear more than once if annotated more than once."),
+          AnnotationsWidget(
+            annotations: annotations,
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class AnnotationsWidget extends HookWidget {
   final List<Annotation> annotations;
@@ -53,16 +104,15 @@ class AnnotationWidget extends HookWidget {
           Text(timeago.format(annotation.annotatedOn)),
           const SizedBox(height: 16),
           IntrinsicWidth(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  (job.value == null)
-                      ? const SizedBox.shrink()
-                      : ScaledBoundingBoxesWidget(
-                          annotation: annotation,
-                          imageUrl: job.value!.imageUrl,
-                        ),
-                ]),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              (job.value == null)
+                  ? const SizedBox.shrink()
+                  : ScaledBoundingBoxesWidget(
+                      annotation: annotation,
+                      imageUrl: job.value!.imageUrl,
+                    ),
+            ]),
           ),
         ],
       ),
@@ -122,13 +172,20 @@ class _ScaledBoundingBoxesWidgetState extends State<ScaledBoundingBoxesWidget> {
   }
 
   bool loaded = false;
+
   Widget buildImage() {
     return Image.network(
       widget.imageUrl,
       key: _imageKey,
       width: 160,
       frameBuilder: (context, child, frame, _) {
-        if (frame != null && !loaded) Future.delayed(Duration.zero, () => setState(() {loaded = true;}));
+        if (frame != null && !loaded) {
+          Future.delayed(
+              Duration.zero,
+              () => setState(() {
+                    loaded = true;
+                  }));
+        }
         return child;
       },
       loadingBuilder: (context, child, loadingProgress) {

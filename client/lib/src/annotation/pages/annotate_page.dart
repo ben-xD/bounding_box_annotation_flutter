@@ -6,6 +6,7 @@ import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/annotation/bounding_box_widget.dart';
+import 'package:banananator/src/annotation/pages/missing_data_page.dart';
 import 'package:banananator/src/routes.dart';
 import 'package:banananator/src/utilities/error_alert_dialog.dart';
 import 'package:flutter/material.dart';
@@ -16,13 +17,13 @@ import 'package:uuid/uuid.dart';
 class AnnotatePage extends StatefulWidget {
   static const routeName = '/annotation';
   final getIt = GetIt.instance;
-  late final Future<AnnotationService> serviceFuture = getIt.getAsync();
+  late final AnnotationService service = getIt();
 
   late final String jobId;
   late final Future<AnnotationJob> job;
 
   AnnotatePage({required this.jobId, super.key}) {
-    job = serviceFuture.then((s) => s.getJob(jobId));
+    job = service.getJob(jobId);
   }
 
   @override
@@ -46,7 +47,6 @@ class _AnnotatePageState extends State<AnnotatePage> {
     Colors.pink
   };
 
-  // List<BoundingBox> finishedBoundingBoxes = [];
   Map<DateTime, FinishedBoundingBox> finishedBoundingBoxes = {};
 
   void _updateImageSize(Duration _) {
@@ -64,7 +64,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
   onSkip() async {
     final jobId = (await widget.job).id;
-    (await widget.serviceFuture).skipAnnotationJob(jobId);
+    widget.service.skipAnnotationJob(jobId);
     navigateToNextJob();
   }
 
@@ -95,7 +95,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
         boundingBoxes: boxes,
         annotatedOn: DateTime.now(),
         localId: const Uuid().toString());
-    final submitted = await (await widget.serviceFuture)
+    final submitted = await widget.service
         .submitAnnotation(annotation)
         .catchError((e) => showError(e, false));
     if (!submitted) {
@@ -116,7 +116,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
   navigateToNextJob() async {
     finishedBoundingBoxes = {};
-    final nextJob = await (await widget.serviceFuture).getNextJob();
+    final nextJob = await widget.service.getNextJob();
     if (!mounted) return;
     if (nextJob == null) {
       context.go(Routes.root); // TODO navigate to a "complete page"
@@ -170,7 +170,16 @@ class _AnnotatePageState extends State<AnnotatePage> {
                   body: Align(child: CircularProgressIndicator()));
             }
             if (snapshot.hasError) {
-              return Scaffold(body: SelectableText("Error: ${snapshot.error}"));
+              if (snapshot.error.runtimeType == RepositoryException) {
+                final e = snapshot.error as RepositoryException;
+                return ErrorPage(
+                  errorMessage: e.message,
+                );
+              } else {
+                return const ErrorPage(
+                  errorMessage: "Unexpected error: $e",
+                );
+              }
             }
             if (!snapshot.hasData) {
               return const SelectableText("No job found");

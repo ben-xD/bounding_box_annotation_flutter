@@ -470,10 +470,14 @@ AnnotationJob _$AnnotationJobFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AnnotationJob {
+  @JsonKey(name: 'id')
+  @HiveField(0)
   String get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'ImageURL')
+  @HiveField(1)
   String get imageUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'CreatedOn')
+  @HiveField(2)
   DateTime get createdOn => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -489,9 +493,9 @@ abstract class $AnnotationJobCopyWith<$Res> {
       _$AnnotationJobCopyWithImpl<$Res, AnnotationJob>;
   @useResult
   $Res call(
-      {String id,
-      @JsonKey(name: 'ImageURL') String imageUrl,
-      @JsonKey(name: 'CreatedOn') DateTime createdOn});
+      {@JsonKey(name: 'id') @HiveField(0) String id,
+      @JsonKey(name: 'ImageURL') @HiveField(1) String imageUrl,
+      @JsonKey(name: 'CreatedOn') @HiveField(2) DateTime createdOn});
 }
 
 /// @nodoc
@@ -537,9 +541,9 @@ abstract class _$$_AnnotationJobCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
-      @JsonKey(name: 'ImageURL') String imageUrl,
-      @JsonKey(name: 'CreatedOn') DateTime createdOn});
+      {@JsonKey(name: 'id') @HiveField(0) String id,
+      @JsonKey(name: 'ImageURL') @HiveField(1) String imageUrl,
+      @JsonKey(name: 'CreatedOn') @HiveField(2) DateTime createdOn});
 }
 
 /// @nodoc
@@ -577,19 +581,25 @@ class __$$_AnnotationJobCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_AnnotationJob implements _AnnotationJob {
-  const _$_AnnotationJob(this.id, @JsonKey(name: 'ImageURL') this.imageUrl,
-      @JsonKey(name: 'CreatedOn') this.createdOn);
+  const _$_AnnotationJob(
+      @JsonKey(name: 'id') @HiveField(0) this.id,
+      @JsonKey(name: 'ImageURL') @HiveField(1) this.imageUrl,
+      @JsonKey(name: 'CreatedOn') @HiveField(2) this.createdOn);
 
   factory _$_AnnotationJob.fromJson(Map<String, dynamic> json) =>
       _$$_AnnotationJobFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
+  @HiveField(0)
   final String id;
   @override
   @JsonKey(name: 'ImageURL')
+  @HiveField(1)
   final String imageUrl;
   @override
   @JsonKey(name: 'CreatedOn')
+  @HiveField(2)
   final DateTime createdOn;
 
   @override
@@ -629,20 +639,25 @@ class _$_AnnotationJob implements _AnnotationJob {
 
 abstract class _AnnotationJob implements AnnotationJob {
   const factory _AnnotationJob(
-      final String id,
-      @JsonKey(name: 'ImageURL') final String imageUrl,
-      @JsonKey(name: 'CreatedOn') final DateTime createdOn) = _$_AnnotationJob;
+          @JsonKey(name: 'id') @HiveField(0) final String id,
+          @JsonKey(name: 'ImageURL') @HiveField(1) final String imageUrl,
+          @JsonKey(name: 'CreatedOn') @HiveField(2) final DateTime createdOn) =
+      _$_AnnotationJob;
 
   factory _AnnotationJob.fromJson(Map<String, dynamic> json) =
       _$_AnnotationJob.fromJson;
 
   @override
+  @JsonKey(name: 'id')
+  @HiveField(0)
   String get id;
   @override
   @JsonKey(name: 'ImageURL')
+  @HiveField(1)
   String get imageUrl;
   @override
   @JsonKey(name: 'CreatedOn')
+  @HiveField(2)
   DateTime get createdOn;
   @override
   @JsonKey(ignore: true)

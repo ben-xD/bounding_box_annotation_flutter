@@ -8,22 +8,11 @@ class UnsubmittedJobsSliver extends HookWidget {
   UnsubmittedJobsSliver({super.key});
 
   final getIt = GetIt.instance;
-  late final Future<AnnotationService> serviceFuture = getIt.getAsync();
+  late final AnnotationService service = getIt();
 
   @override
   Widget build(BuildContext context) {
     final isMounted = useIsMounted();
-    final snapshot = useFuture(serviceFuture);
-    if (snapshot.connectionState != ConnectionState.done) {
-      return const CircularProgressIndicator();
-    }
-    if (snapshot.hasError) {
-      return SelectableText("Error: ${snapshot.error}");
-    }
-    if (!snapshot.hasData) {
-      return const SelectableText("No job found");
-    }
-    final service = snapshot.data!;
     final annotations = service.getNotSubmittedAnnotations();
 
     void showNotSubmittedWarning() {

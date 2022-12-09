@@ -8,3 +8,7 @@ database_name = "banananator"
 database_id = "81dfc707-872c-4394-a8ce-9fa8c0010c74"
 # Called banananator_preview
 preview_database_id = "34e90672-be2c-44a3-825b-f5852fb27efa"
+
+[[r2_buckets]]
+binding = 'R2'
+bucket_name = 'banananator'

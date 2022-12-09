@@ -9,4 +9,4 @@ class HiveTypeIds {
   static const offset = 5;
 }
 
-enum HiveBoxes { annotations }
+enum HiveBoxes { annotations, annotationJobs }

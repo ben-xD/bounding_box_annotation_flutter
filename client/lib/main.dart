@@ -7,18 +7,34 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_strategy/url_strategy.dart';
 
-import 'src/app.dart';
-
 void main() async {
   setPathUrlStrategy();
-  registerServices();
-  runApp(const MyApp());
+  await registerServices();
+  runApp(const App());
 }
 
-void registerServices() {
+Future<void> registerServices() async {
   final getIt = GetIt.instance;
   getIt.registerSingleton<GoRouter>(createRouterConfig());
-  getIt.registerSingletonAsync<AnnotationService>(() async =>
-      AnnotationService(networkRepository: AnnotationNetworkRepository(),
+  getIt.registerSingleton(AnnotationService(
+      networkRepository: AnnotationNetworkRepository(),
       localRepository: await AnnotationLocalRepository.init()));
+}
+
+class App extends StatelessWidget {
+  const App({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      routerConfig: GetIt.instance<GoRouter>(),
+      restorationScopeId: 'app',
+      theme: ThemeData(),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
+    );
+  }
 }
