@@ -135,8 +135,10 @@ class HomePage extends HookWidget {
                     await FilePicker.platform.pickFiles();
                 if (result != null) {
                   final files = result.files;
-                  final futures =
-                      files.map((f) => service.uploadImage(f.name, f.bytes!));
+                  final futures = files.map((f) => service.createJobWithImage(
+                      f.name,
+                      bytes: f.bytes,
+                      path: f.path));
                   await Future.wait(futures).catchError(
                       (e) => showError(e, <void>[], context, isMounted));
                   // if (kIsWeb) {
@@ -145,10 +147,10 @@ class HomePage extends HookWidget {
                   // }
                 }
               }),
-          // IconButton(
-          //   icon: const Icon(Icons.settings),
-          //   onPressed: () => context.go("/${Routes.settings}"),
-          // )
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.go("/${Routes.settings}"),
+          )
         ],
       ),
       body: ListView(

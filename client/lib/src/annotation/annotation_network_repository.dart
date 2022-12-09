@@ -69,7 +69,15 @@ class AnnotationNetworkRepository {
     await file.writeAsBytes(response.bodyBytes);
   }
 
-  Future<void> uploadImage(String name, Uint8List bytes) async {
+  Future<void> createJobWithImage(String name, {Uint8List? bytes, String? path}) async {
+    if (bytes == null) {
+      if (path == null) {
+        throw RepositoryException("Both path and bytes were null. There is no image to upload.");
+      }
+      bytes = await File(path).readAsBytes();
+    }
+    // file.bytes is null on Desktop, and used on web.
+    // file.path is null on Web, and used on Desktop.
     final endpoint = Constants.apiUrl.resolve("/images/$name");
     try {
       final response = await http.put(endpoint, body: bytes);

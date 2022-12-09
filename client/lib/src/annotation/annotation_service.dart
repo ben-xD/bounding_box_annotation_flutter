@@ -114,8 +114,8 @@ class AnnotationService extends ChangeNotifier {
         .length; // Number of failed requests
   }
 
-  Future<void> uploadImage(String name, Uint8List bytes) async {
-    await networkRepository.uploadImage(name, bytes);
+  Future<void> createJobWithImage(String name, {Uint8List? bytes, String? path}) async {
+    await networkRepository.createJobWithImage(name, bytes: bytes, path: path);
   }
 
   Future<void> deleteJob(String id) async {
