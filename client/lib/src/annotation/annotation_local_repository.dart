@@ -28,6 +28,10 @@ class AnnotationLocalRepository {
     return self;
   }
 
+  AnnotationJob? getJob(String jobId) {
+    return _jobBox.get(jobId);
+  }
+
   Iterable<Annotation> getAnnotations() {
     return _annotationsBox.values;
   }
@@ -40,9 +44,7 @@ class AnnotationLocalRepository {
     _annotationsBox.delete(annotation.localId);
   }
 
-  saveJob(AnnotationJob job) {
-    _jobBox.add(job);
-  }
+  Future<void> saveJob(AnnotationJob job) async => _jobBox.put(job.id, job);
 
   getJobs() {
     return _jobBox.values.toList();

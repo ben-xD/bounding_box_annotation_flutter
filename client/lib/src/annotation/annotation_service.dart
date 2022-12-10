@@ -49,25 +49,29 @@ class AnnotationService extends ChangeNotifier {
 
   downloadAllJobs() async {
     final jobs = await fetchJobs();
+    final jobDownloadFutures = <Future<void>>[];
     for (final job in jobs) {
-      localRepository.saveJob(job);
+      jobDownloadFutures.add(localRepository.saveJob(job));
     }
-    await _downloadImage(jobs);
-    notifyListeners();
-  }
-
-  Future<void> _downloadImage(Iterable<AnnotationJob> jobs) async {
-    // Download images in parallel:
-    final futures =
+    final imageDownloadFutures =
         jobs.map((j) => networkRepository.downloadImage(j.imageUrl));
-    await Future.wait(futures);
+    // Download jobs and images in parallel
+    await Future.wait([...jobDownloadFutures, ...imageDownloadFutures]);
+    notifyListeners();
   }
 
   FutureOr<AnnotationJob?> getNextJob() async {
     // Take one that hasn't been completed:
-    final jobIds = _jobByJobId.keys.toSet().difference(_completedJobIds);
-    if (jobIds.isEmpty) return null;
-    return _jobByJobId[jobIds.first];
+    final unfinishedJobs =
+        _jobByJobId.keys.toSet().difference(_completedJobIds);
+    if (unfinishedJobs.isEmpty) {
+      // Fall back to downloaded jobs:
+      final unfinishedDownloadedJobs =
+          jobsDownloaded.map((e) => e.id).toSet().difference(_completedJobIds);
+      if (unfinishedDownloadedJobs.isEmpty) return null;
+      return localRepository.getJob(unfinishedDownloadedJobs.first);
+    }
+    return _jobByJobId[unfinishedJobs.first];
   }
 
   Future<List<AnnotationJob>> fetchJobs() async {
@@ -79,10 +83,16 @@ class AnnotationService extends ChangeNotifier {
   }
 
   Future<AnnotationJob> getJob(String jobId) async {
-    if (!_jobByJobId.containsKey(jobId)) {
+    AnnotationJob? job;
+    try {
       await fetchJobs(); // Doesn't exist locally, so fetch it.
+      if (_jobByJobId.containsKey(jobId)) {
+        job = _jobByJobId[jobId];
+      }
+    } on RepositoryException catch (_) {
+      // Fall back to locally stored ones
+      job = localRepository.getJob(jobId);
     }
-    final job = _jobByJobId[jobId];
     if (job != null) {
       return job;
     }
@@ -90,9 +100,9 @@ class AnnotationService extends ChangeNotifier {
   }
 
   Future<void> deleteAnnotations() async {
-    await networkRepository.deleteAnnotations();
     await localRepository.deleteAnnotations();
     notifyListeners();
+    await networkRepository.deleteAnnotations();
   }
 
   /// Returns number of annotations that failed to upload.
@@ -110,7 +120,8 @@ class AnnotationService extends ChangeNotifier {
         .length; // Number of failed requests
   }
 
-  Future<void> createJobWithImage(String name, {Uint8List? bytes, String? path}) async {
+  Future<void> createJobWithImage(String name,
+      {Uint8List? bytes, String? path}) async {
     await networkRepository.createJobWithImage(name, bytes: bytes, path: path);
   }
 

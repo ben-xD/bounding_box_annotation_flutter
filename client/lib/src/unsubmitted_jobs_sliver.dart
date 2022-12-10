@@ -13,6 +13,7 @@ class UnsubmittedJobsSliver extends HookWidget {
   @override
   Widget build(BuildContext context) {
     final isMounted = useIsMounted();
+    useListenable(service);
     final annotations = service.getNotSubmittedAnnotations();
 
     void showNotSubmittedWarning() {

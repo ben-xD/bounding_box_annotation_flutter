@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:another_flushbar/flushbar.dart';
 import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
@@ -94,24 +93,11 @@ class _AnnotatePageState extends State<AnnotatePage> {
         annotationJobID: job.id,
         boundingBoxes: boxes,
         annotatedOn: DateTime.now(),
-        localId: const Uuid().toString());
-    final submitted = await widget.service
+        localId: const Uuid().v4());
+    await widget.service
         .submitAnnotation(annotation)
         .catchError((e) => showError(e, false));
-    if (!submitted) {
-      showNotSubmittedWarning();
-    }
     await navigateToNextJob();
-  }
-
-  void showNotSubmittedWarning() {
-    if (!mounted) return;
-    Flushbar(
-      message:
-          "Your last annotation was only saved locally because of a network issue.",
-      duration: const Duration(seconds: 8),
-      backgroundColor: Colors.red[900]!,
-    ).show(context);
   }
 
   navigateToNextJob() async {

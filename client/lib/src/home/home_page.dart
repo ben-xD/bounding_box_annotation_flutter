@@ -65,6 +65,7 @@ class HomePage extends HookWidget {
   Widget build(BuildContext context) {
     final isMounted = useIsMounted();
     final networkWarningFlushbar = useState<Flushbar?>(null);
+    useListenable(service);
     final annotationJobs = useState<List<AnnotationJob>>([]);
     final annotations = useState<List<Annotation>>([]);
     final connected = useIsNetworkConnected(uri: Constants.apiUrl);
