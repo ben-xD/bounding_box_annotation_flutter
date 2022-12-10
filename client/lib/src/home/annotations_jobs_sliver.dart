@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/annotation/models/annotation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
@@ -26,10 +29,6 @@ class AnnotationJobsSliver extends HookWidget {
     final isMounted = useIsMounted();
     final jobs = useValueListenable(jobsValueNotifier);
 
-    onDownloadAllJobs(IsMounted isMounted) async {
-      service.downloadAllJobs();
-    }
-
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -40,10 +39,27 @@ class AnnotationJobsSliver extends HookWidget {
               style: Theme.of(context).textTheme.headline5),
           SelectableText(
               "You have ${jobs.length} annotation ${(jobs.length == 1) ? "job" : "jobs"} to finish."),
-          Text("Jobs downloaded: ${service.jobsDownloaded}"),
-          ElevatedButton(
-              onPressed: () => onDownloadAllJobs(isMounted),
-              child: const Text("Download all jobs")),
+          Text("Jobs downloaded: ${service.jobsDownloaded.length}"),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Wrap(
+              spacing: 8,
+              children: [
+                ElevatedButton(
+                    onPressed: service.downloadAllJobs,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: const Text("Download all jobs"),
+                    )),
+                ElevatedButton(
+                    onPressed: service.deleteDownloadedJobs,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: const Text("Delete downloaded jobs"),
+                    )),
+              ],
+            ),
+          ),
           Wrap(
             children: jobs
                 .map((job) => Padding(
@@ -54,11 +70,12 @@ class AnnotationJobsSliver extends HookWidget {
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              SelectableText(
-                                  timeago.format(job.createdOn)),
-                              IconButton(onPressed: () async {
-                                await service.deleteJob(job.id);
-                              }, icon: const Icon(Icons.delete))
+                              SelectableText(timeago.format(job.createdOn)),
+                              IconButton(
+                                  onPressed: () async {
+                                    await service.deleteJob(job.id);
+                                  },
+                                  icon: const Icon(Icons.delete))
                             ],
                           ),
                           const SizedBox(height: 8),
