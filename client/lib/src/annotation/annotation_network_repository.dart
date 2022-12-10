@@ -58,7 +58,8 @@ class AnnotationNetworkRepository {
   Future<void> downloadImage(String imageUrl) async {
     if (kIsWeb) {
       // Manually download each image to use the browser cache.
-      return http.get(Uri.parse(imageUrl)).then((response) => null);
+      final response = await http.get(Uri.parse(imageUrl));
+      return;
     };
     final uri = Uri.parse(imageUrl);
     final response = await http.get(uri);
@@ -67,6 +68,15 @@ class AnnotationNetworkRepository {
     await Directory(imageDirectory).create(recursive: true);
     final file = File(imageDirectory + uri.pathSegments.last);
     await file.writeAsBytes(response.bodyBytes);
+  }
+
+  Future<String?> getImagePathFor(AnnotationJob job) async {
+    final uri = Uri.parse(job.imageUrl);
+    final documentDirectory = await getApplicationDocumentsDirectory();
+    final imageDirectory = "${documentDirectory.path}/images";
+    final file = File(imageDirectory + uri.pathSegments.last);
+    if (!(await file.exists())) return null;
+    return file.path;
   }
 
   Future<void> createJobWithImage(String name, {Uint8List? bytes, String? path}) async {

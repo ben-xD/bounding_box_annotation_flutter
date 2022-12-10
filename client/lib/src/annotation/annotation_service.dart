@@ -14,7 +14,7 @@ class AnnotationService extends ChangeNotifier {
   final Map<String, AnnotationJob> _jobByJobId = {};
   final _completedJobIds = <String>{};
 
-  int get jobsDownloaded => localRepository.getJobs().length;
+  List<AnnotationJob> get jobsDownloaded => localRepository.getJobs();
 
   AnnotationService(
       {required this.networkRepository, required this.localRepository});
@@ -22,14 +22,6 @@ class AnnotationService extends ChangeNotifier {
   Iterable<Annotation> getNotSubmittedAnnotations() {
     return localRepository.getAnnotations();
   }
-
-  // Future<List<Image>> downloadImages(int maxQuantity) {
-  //
-  // }
-  // Challenge: persist images for later use.
-  // Future<List<Path>> downloadImages(int maxQuantity) {
-  //
-  // }
 
   Future<void> skipAnnotationJob(jobId) async {
     _completedJobIds.add(jobId);
@@ -57,11 +49,14 @@ class AnnotationService extends ChangeNotifier {
 
   downloadAllJobs() async {
     final jobs = await fetchJobs();
-    await _cacheImage(jobs);
+    for (final job in jobs) {
+      localRepository.saveJob(job);
+    }
+    await _downloadImage(jobs);
     notifyListeners();
   }
 
-  Future<void> _cacheImage(Iterable<AnnotationJob> jobs) async {
+  Future<void> _downloadImage(Iterable<AnnotationJob> jobs) async {
     // Download images in parallel:
     final futures =
         jobs.map((j) => networkRepository.downloadImage(j.imageUrl));
@@ -125,6 +120,14 @@ class AnnotationService extends ChangeNotifier {
     } on RepositoryException catch (_) {
       notifyListeners();
     }
+  }
+
+  deleteDownloadedJobs() {
+    return localRepository.deleteJobs();
+  }
+
+  Future<String?> getSavedJobImage(AnnotationJob job) {
+    return networkRepository.getImagePathFor(job);
   }
 }
 

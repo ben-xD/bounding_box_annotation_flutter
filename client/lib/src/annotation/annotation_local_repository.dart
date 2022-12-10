@@ -40,9 +40,17 @@ class AnnotationLocalRepository {
     _annotationsBox.delete(annotation.localId);
   }
 
+  saveJob(AnnotationJob job) {
+    _jobBox.add(job);
+  }
+
   getJobs() {
-    return _jobBox.values;
+    return _jobBox.values.toList();
   }
 
   deleteAnnotations() => _annotationsBox.clear();
+
+  deleteJobs() {
+    _jobBox.clear();
+  }
 }

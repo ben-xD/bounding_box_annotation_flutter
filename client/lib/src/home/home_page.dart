@@ -94,7 +94,10 @@ class HomePage extends HookWidget {
           .fetchJobs()
           .then((jobs) => annotationJobs.value = jobs)
           .catchError(
-              (e) => showError(e, <AnnotationJob>[], context, isMounted),
+              (e) {
+                annotationJobs.value = service.jobsDownloaded;
+                return showError(e, <AnnotationJob>[], context, isMounted);
+              },
               test: (o) {
         return o.runtimeType == RepositoryException;
       });
@@ -113,7 +116,9 @@ class HomePage extends HookWidget {
     }, [isMounted]);
 
     useEffect(() {
-      return null;
+      return () {
+        connected.dispose();
+      };
     }, []);
 
     void onStartAnnotating() {
