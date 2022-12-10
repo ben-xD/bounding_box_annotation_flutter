@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:banananator/src/annotation/annotation_local_repository.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/routes.dart';
+import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -12,11 +15,17 @@ void main() async {
   setPathUrlStrategy();
   await registerServices();
 
-  WidgetsFlutterBinding.ensureInitialized();
-  await windowManager.ensureInitialized();
-  WindowManager.instance.setMinimumSize(const Size(400, 400));
-
+  await setupDesktopWindowSize();
   runApp(const App());
+}
+
+Future<void> setupDesktopWindowSize() async {
+  if (kIsWeb) return; // Checking platform errors on web.
+  if (Platform.isMacOS || Platform.isWindows || Platform.isLinux) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await windowManager.ensureInitialized();
+    WindowManager.instance.setMinimumSize(const Size(400, 400));
+  }
 }
 
 Future<void> registerServices() async {

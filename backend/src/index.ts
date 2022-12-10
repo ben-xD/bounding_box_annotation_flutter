@@ -130,7 +130,7 @@ app.post('/api/annotations', async ctx => {
 
 app.put('/images/:image_name', async ctx => {
 	const imageName = ctx.req.param('image_name');
-	await ctx.env.R2.put(imageName, ctx.req.body);
+	await ctx.env.R2.put(imageName, ctx.req.body, {httpMetadata: {cacheControl: "max-age=31536000"}}); // 365 days an arbitrary choice
 
 	const jobId = uuidv4().toString();
 	const currentTime = new Date().toISOString();
