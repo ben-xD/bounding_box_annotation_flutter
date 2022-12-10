@@ -36,8 +36,7 @@ class AnnotationsSliver extends HookWidget {
               IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () async {
-                  await service
-                      .deleteAnnotations();
+                  await service.deleteAnnotations();
                 },
               )
             ],
