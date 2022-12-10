@@ -187,7 +187,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
             final AnnotationJob job = snapshot.data!;
             MediaQuery.of(
                 context); // Trigger rebuild when window is resized. This updates the bounding box sizes.
-            final image = Image.network(job.imageUrl, key: _imageKey);
+            final image = buildImage(job);
             // Yes, we call this every time the widget rebuilds, so we update our understanding of the image size.
             WidgetsBinding.instance.addPostFrameCallback(_updateImageSize);
             final boundingBox = getCurrentBoundingBox();
@@ -246,6 +246,8 @@ class _AnnotatePageState extends State<AnnotatePage> {
           }),
     );
   }
+
+  Image buildImage(AnnotationJob job) => Image.network(job.imageUrl, key: _imageKey);
 
   SingleChildScrollView buildTaskWidget(BuildContext context) {
     return SingleChildScrollView(

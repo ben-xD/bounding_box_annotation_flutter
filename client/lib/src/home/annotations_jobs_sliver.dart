@@ -26,7 +26,6 @@ class AnnotationJobsSliver extends HookWidget {
   @override
   Widget build(BuildContext context) {
     useListenable(service);
-    final isMounted = useIsMounted();
     final jobs = useValueListenable(jobsValueNotifier);
 
     return Padding(
@@ -47,15 +46,15 @@ class AnnotationJobsSliver extends HookWidget {
               children: [
                 ElevatedButton(
                     onPressed: service.downloadAllJobs,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: const Text("Download all jobs"),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text("Download all jobs"),
                     )),
                 ElevatedButton(
                     onPressed: service.deleteDownloadedJobs,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: const Text("Delete downloaded jobs"),
+                    child: const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text("Delete downloaded jobs"),
                     )),
               ],
             ),

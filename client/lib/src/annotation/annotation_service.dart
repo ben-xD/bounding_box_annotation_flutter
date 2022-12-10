@@ -92,6 +92,7 @@ class AnnotationService extends ChangeNotifier {
   Future<void> deleteAnnotations() async {
     await networkRepository.deleteAnnotations();
     await localRepository.deleteAnnotations();
+    notifyListeners();
   }
 
   /// Returns number of annotations that failed to upload.
@@ -122,8 +123,9 @@ class AnnotationService extends ChangeNotifier {
     }
   }
 
-  deleteDownloadedJobs() {
-    return localRepository.deleteJobs();
+  Future<void> deleteDownloadedJobs() async {
+    await localRepository.deleteJobs();
+    notifyListeners();
   }
 
   Future<String?> getSavedJobImage(AnnotationJob job) {

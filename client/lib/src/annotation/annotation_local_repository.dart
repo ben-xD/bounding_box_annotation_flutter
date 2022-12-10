@@ -50,7 +50,7 @@ class AnnotationLocalRepository {
 
   deleteAnnotations() => _annotationsBox.clear();
 
-  deleteJobs() {
-    _jobBox.clear();
+  Future<void> deleteJobs() async {
+    await _jobBox.clear();
   }
 }
