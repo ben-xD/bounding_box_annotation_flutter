@@ -19,7 +19,8 @@
     - `cd ../client/`
     - `flutter build web`
     - `cd -`
-    - `npx wrangler pages publish ../client/build/web`
+    - `npx wrangler pages publish ../client/build/web --project-name=banananator`
+    - To deploy fragile version, run: `npx wrangler pages publish ../client/build/web --project-name=banananator-fragile`
     - See https://developers.cloudflare.com/pages/platform/direct-upload/#wrangler-cli
 
 
