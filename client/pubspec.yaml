@@ -32,6 +32,9 @@ dependencies:
   file_picker: ^5.2.3
   window_manager: ^0.2.8
 
+  # For internet checks
+  collection: ^1.0.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,4 +1,4 @@
-import 'package:banananator/src/connectivity/connectivity.dart';
+import 'package:banananator/src/connectivity/check_internet_hooks.dart';
 import 'package:banananator/src/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';

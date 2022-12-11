@@ -14,7 +14,7 @@ class ErrorPage extends StatelessWidget {
           leading: IconButton(
             icon: const Icon(Icons.arrow_circle_left_outlined),
             onPressed: () {
-              context.go("${Routes.root}");
+              context.go(Routes.root);
             },
           ),
         ),

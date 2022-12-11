@@ -4,14 +4,13 @@ import 'package:another_flushbar/flushbar.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/annotation/models/annotation.dart';
-import 'package:banananator/src/connectivity/connectivity.dart';
+import 'package:banananator/src/connectivity/check_internet_hooks.dart';
 import 'package:banananator/src/constants.dart';
 import 'package:banananator/src/home/annotations_jobs_sliver.dart';
 import 'package:banananator/src/routes.dart';
 import 'package:banananator/src/utilities/error_alert_dialog.dart';
 import 'package:banananator/src/home/annotations_sliver.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
@@ -115,12 +114,6 @@ class HomePage extends HookWidget {
       fetchData();
       return null;
     }, [isMounted]);
-
-    useEffect(() {
-      return () {
-        connected.dispose();
-      };
-    }, []);
 
     void onStartAnnotating() {
       final jobs = annotationJobs.value;

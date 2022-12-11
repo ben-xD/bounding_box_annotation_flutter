@@ -20,7 +20,6 @@ class AnnotationsSliver extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isMounted = useIsMounted();
     final annotations = useValueListenable(annotationsValueNotifier);
 
     return Padding(

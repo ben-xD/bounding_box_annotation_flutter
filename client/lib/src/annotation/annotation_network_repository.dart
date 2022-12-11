@@ -58,9 +58,9 @@ class AnnotationNetworkRepository {
   Future<void> downloadImage(String imageUrl) async {
     if (kIsWeb) {
       // Manually download each image to use the browser cache.
-      final response = await http.get(Uri.parse(imageUrl));
+      await http.get(Uri.parse(imageUrl));
       return;
-    };
+    }
     final uri = Uri.parse(imageUrl);
     final response = await http.get(uri);
     final documentDirectory = await getApplicationDocumentsDirectory();

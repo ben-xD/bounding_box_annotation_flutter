@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:banananator/src/annotation/annotation_local_repository.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';

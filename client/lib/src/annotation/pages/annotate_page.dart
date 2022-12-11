@@ -22,6 +22,7 @@ class AnnotatePage extends StatefulWidget {
   late final Future<AnnotationJob> job;
 
   AnnotatePage({required this.jobId, super.key}) {
+    // TODO show an error to the user
     job = service.getJob(jobId);
   }
 

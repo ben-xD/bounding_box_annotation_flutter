@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:banananator/src/annotation/annotation_service.dart';
 import 'package:banananator/src/annotation/models/annotation.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
