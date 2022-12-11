@@ -62,10 +62,12 @@ class AnnotationsWidget extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
+    return
+      Wrap(
       children: annotations
           .map((e) => AnnotationWidget(
                 annotation: e,
+                key: ValueKey(e.annotatedOn),
               ))
           .toList(),
     );
