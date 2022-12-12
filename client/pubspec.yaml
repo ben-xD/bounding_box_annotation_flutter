@@ -31,6 +31,7 @@ dependencies:
   uuid: ^3.0.7
   file_picker: ^5.2.3
   window_manager: ^0.2.8
+  twemoji: ^0.4.3
 
   # For internet checks
   collection: ^1.0.0
@@ -51,3 +52,6 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/fruit-basket.jpg
+
+twemoji:
+  includes: '🍌📸'

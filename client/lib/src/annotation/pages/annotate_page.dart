@@ -8,6 +8,7 @@ import 'package:banananator/src/annotation/bounding_box_widget.dart';
 import 'package:banananator/src/annotation/pages/missing_data_page.dart';
 import 'package:banananator/src/routes.dart';
 import 'package:banananator/src/utilities/error_alert_dialog.dart';
+import 'package:banananator/src/widgets/app_bar_title.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
@@ -181,7 +182,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
             return Scaffold(
               appBar: AppBar(
-                title: const Text("Banananator"),
+                title: const AppBarTitle(),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_circle_left_outlined),
                   onPressed: () => context.go(Routes.root),

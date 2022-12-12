@@ -10,11 +10,13 @@ import 'package:banananator/src/home/annotations_jobs_sliver.dart';
 import 'package:banananator/src/routes.dart';
 import 'package:banananator/src/utilities/error_alert_dialog.dart';
 import 'package:banananator/src/home/annotations_sliver.dart';
+import 'package:banananator/src/widgets/app_bar_title.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:twemoji/twemoji.dart';
 
 class HomePage extends HookWidget {
   HomePage({super.key});
@@ -124,7 +126,7 @@ class HomePage extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Banananator"),
+        title: const AppBarTitle(),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: fetchData),
           IconButton(
