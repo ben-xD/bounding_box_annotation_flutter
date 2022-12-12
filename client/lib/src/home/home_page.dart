@@ -124,7 +124,7 @@ class HomePage extends HookWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Banananator 🍌📸"),
+        title: const Text("Banananator"),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: fetchData),
           IconButton(

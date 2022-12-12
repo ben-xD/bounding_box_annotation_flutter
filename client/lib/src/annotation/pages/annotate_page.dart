@@ -181,7 +181,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
 
             return Scaffold(
               appBar: AppBar(
-                title: const Text("Banananator 🍌📸"),
+                title: const Text("Banananator"),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_circle_left_outlined),
                   onPressed: () => context.go(Routes.root),
