@@ -22,6 +22,7 @@ for bucket in s3.buckets.all():
     print(' - ', bucket.name)
 
 bucket_name = "banananator"
+# bucket_name = "banananator-preview"
 bucket = s3.Bucket(bucket_name)
 print(bucket)
 

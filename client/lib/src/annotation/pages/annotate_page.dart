@@ -92,7 +92,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
     imageSize = Size.zero;
     final boxes = finishedBoundingBoxes.values.map((e) => e.box).toList();
     final annotation = Annotation(
-        annotationJobID: job.id,
+        annotationJobId: job.id,
         boundingBoxes: boxes,
         annotatedOn: DateTime.now(),
         localId: const Uuid().v4());

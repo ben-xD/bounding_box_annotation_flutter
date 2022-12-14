@@ -27,7 +27,7 @@ class AnnotationService extends ChangeNotifier {
   }
 
   Future<bool> submitAnnotation(Annotation annotation) async {
-    _completedJobIds.add(annotation.annotationJobID);
+    _completedJobIds.add(annotation.annotationJobId);
     localRepository.saveAnnotation(annotation); // Persist it in case it errors.
     try {
       await networkRepository.submitAnnotation(annotation);
@@ -140,6 +140,10 @@ class AnnotationService extends ChangeNotifier {
 
   Future<String?> getSavedJobImage(AnnotationJob job) {
     return networkRepository.getImagePathFor(job);
+  }
+
+  Future<void> deleteAllJobs() {
+    return networkRepository.deleteJobs();
   }
 }
 

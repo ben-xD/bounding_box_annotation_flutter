@@ -54,7 +54,7 @@ class AnnotationAdapter extends TypeAdapter<Annotation> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Annotation(
-      annotationJobID: fields[0] as String,
+      annotationJobId: fields[0] as String,
       boundingBoxes: (fields[1] as List).cast<BoundingBox>(),
       annotatedOn: fields[2] as DateTime,
       localId: fields[3] as String?,
@@ -66,7 +66,7 @@ class AnnotationAdapter extends TypeAdapter<Annotation> {
     writer
       ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.annotationJobID)
+      ..write(obj.annotationJobId)
       ..writeByte(1)
       ..write(obj.boundingBoxes)
       ..writeByte(2)
@@ -145,30 +145,30 @@ Map<String, dynamic> _$$_BoundingBoxToJson(_$_BoundingBox instance) =>
 
 _$_Annotation _$$_AnnotationFromJson(Map<String, dynamic> json) =>
     _$_Annotation(
-      annotationJobID: json['AnnotationJobID'] as String,
+      annotationJobId: json['annotationJobId'] as String,
       boundingBoxes: const BoundingBoxesConverter()
-          .fromJson(json['BoundingBoxes'] as String),
-      annotatedOn: DateTime.parse(json['AnnotatedOn'] as String),
+          .fromJson(json['boundingBoxes'] as String),
+      annotatedOn: DateTime.parse(json['annotatedOn'] as String),
     );
 
 Map<String, dynamic> _$$_AnnotationToJson(_$_Annotation instance) =>
     <String, dynamic>{
-      'AnnotationJobID': instance.annotationJobID,
-      'BoundingBoxes':
+      'annotationJobId': instance.annotationJobId,
+      'boundingBoxes':
           const BoundingBoxesConverter().toJson(instance.boundingBoxes),
-      'AnnotatedOn': instance.annotatedOn.toIso8601String(),
+      'annotatedOn': instance.annotatedOn.toIso8601String(),
     };
 
 _$_AnnotationJob _$$_AnnotationJobFromJson(Map<String, dynamic> json) =>
     _$_AnnotationJob(
       json['id'] as String,
-      json['ImageURL'] as String,
-      DateTime.parse(json['CreatedOn'] as String),
+      json['imageUrl'] as String,
+      DateTime.parse(json['createdOn'] as String),
     );
 
 Map<String, dynamic> _$$_AnnotationJobToJson(_$_AnnotationJob instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'ImageURL': instance.imageUrl,
-      'CreatedOn': instance.createdOn.toIso8601String(),
+      'imageUrl': instance.imageUrl,
+      'createdOn': instance.createdOn.toIso8601String(),
     };

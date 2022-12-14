@@ -172,3 +172,8 @@ dist
 
 # python
 venv
+rust/target
+.idea
+
+# Generated files
+src/wasm

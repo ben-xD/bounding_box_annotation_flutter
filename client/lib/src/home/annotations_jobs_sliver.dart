@@ -31,8 +31,13 @@ class AnnotationJobsSliver extends HookWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          SelectableText("Annotation jobs.",
-              style: Theme.of(context).textTheme.headline5),
+          Row(
+            children: [
+              SelectableText("Annotation jobs.",
+                  style: Theme.of(context).textTheme.headline5),
+              IconButton(onPressed: service.deleteAllJobs, icon: const Icon(Icons.delete)),
+            ],
+          ),
           SelectableText(
               "You have ${jobs.length} annotation ${(jobs.length == 1) ? "job" : "jobs"} to finish."),
           Text("Jobs downloaded: ${service.jobsDownloaded.length}"),

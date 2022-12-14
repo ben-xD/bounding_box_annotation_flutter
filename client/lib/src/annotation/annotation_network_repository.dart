@@ -84,6 +84,7 @@ class AnnotationNetworkRepository {
       if (path == null) {
         throw RepositoryException("Both path and bytes were null. There is no image to upload.");
       }
+      // Read from the path if we don't have the raw bytes.
       bytes = await File(path).readAsBytes();
     }
     // file.bytes is null on Desktop, and used on web.
@@ -92,6 +93,13 @@ class AnnotationNetworkRepository {
     try {
       final response = await http.put(endpoint, body: bytes);
       if (response.statusCode == 201) {
+        // Seems to cause an exception: I don't have permissions?
+        // final ext = await getExternalStorageDirectory();
+        // Useful debugging code to write file to disk. Run on desktop build
+        // final documentDirectory = await getApplicationDocumentsDirectory();
+        // final imageDirectory = "${documentDirectory.path}/images";
+        // final file = File("$imageDirectory/downloaded-$name");
+        // file.writeAsBytesSync(response.bodyBytes, flush: true);
         return;
       }
       throw Exception("Unexpected status code: ${response.statusCode}");
@@ -102,6 +110,19 @@ class AnnotationNetworkRepository {
 
   Future<void> deleteJob(String id) async {
     final endpoint = Constants.apiUrl.resolve("api/annotations/jobs/$id");
+    try {
+      final response = await http.delete(endpoint);
+      if (response.statusCode == 200) {
+        return;
+      }
+      throw Exception("Unexpected status code: ${response.statusCode}");
+    } on http.ClientException catch (e) {
+      throw RepositoryException(e.message);
+    }
+  }
+
+  Future<void> deleteJobs() async {
+    final endpoint = Constants.apiUrl.resolve("api/annotations/jobs");
     try {
       final response = await http.delete(endpoint);
       if (response.statusCode == 200) {

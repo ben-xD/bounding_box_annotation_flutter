@@ -14,7 +14,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 // to help generate code like converting into JSON.
 
 part 'annotation.freezed.dart';
-
 part 'annotation.g.dart';
 
 @freezed
@@ -36,15 +35,12 @@ class BoundingBox with _$BoundingBox {
 @freezed
 @HiveType(typeId: HiveTypeIds.annotation)
 class Annotation with _$Annotation {
-  const factory Annotation(
-      {@JsonKey(name: 'AnnotationJobID')
+  const factory Annotation({
       @HiveField(0)
-          required String annotationJobID,
+          required String annotationJobId,
       @BoundingBoxesConverter()
-      @JsonKey(name: 'BoundingBoxes')
       @HiveField(1)
           required List<BoundingBox> boundingBoxes,
-      @JsonKey(name: 'AnnotatedOn')
       @HiveField(2)
           required DateTime annotatedOn,
         @JsonKey(ignore: true)
@@ -59,9 +55,9 @@ class Annotation with _$Annotation {
 @HiveType(typeId: HiveTypeIds.annotationJob)
 class AnnotationJob with _$AnnotationJob {
   const factory AnnotationJob(
-      @JsonKey(name: 'id') @HiveField(0) String id,
-      @JsonKey(name: 'ImageURL') @HiveField(1) String imageUrl,
-      @JsonKey(name: 'CreatedOn') @HiveField(2) DateTime createdOn) = _AnnotationJob;
+      @HiveField(0) String id,
+      @HiveField(1) String imageUrl,
+      @HiveField(2) DateTime createdOn) = _AnnotationJob;
 
   factory AnnotationJob.fromJson(Map<String, Object?> json) =>
       _$AnnotationJobFromJson(json);

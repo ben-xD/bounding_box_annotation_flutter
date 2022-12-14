@@ -1,0 +1,23 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+# cdylib is a C dynamic library, rlib is a "rust library"
+# why? https://stackoverflow.com/questions/56227766/why-must-a-wasm-library-in-rust-set-the-crate-type-to-cdylib
+# Create dynamic library, but NOT compiled for windows (.dll), linux (.dylib) or macOS (.so or .dylib)
+# So we build a C dynamic library, not a rust dynamic library (dylib) that is loaded by the browser.
+crate-type = ["cdylib"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+wasm-bindgen = { version = "^0.2.83" }
+web-sys = { version = "0.3.60", features = ['ReadableStream', 'WritableStream', 'console'] }
+image = "^0.24.5"
+
+# https://github.com/rustwasm/wasm-pack/issues/913
+# TODO follow more optimisations from there
+# [package.metadata.wasm-pack.profile.release]
+# wasm-opt = false

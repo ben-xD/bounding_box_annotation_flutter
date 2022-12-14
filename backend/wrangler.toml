@@ -1,14 +1,42 @@
 name = "banananator"
+# This seems important. Otherwise you get errors.
 main = "src/index.ts"
-compatibility_date = "2022-12-06"
+compatibility_date = "2022-01-20"
+# compatibility_date = "2022-12-12"
 
-[[ d1_databases ]]
+[env.production]
+name = "banananator"
+[env.production.vars]
+CLOUDFLARE_IMAGE_BUCKET_URL = "banananator-images.orth.uk"
+CLOUDFLARE_PAGES_URL = "banananator.pages.dev"
+
+[env.preview]
+name = "banananator-preview"
+[env.preview.vars]
+CLOUDFLARE_IMAGE_BUCKET_URL = "banananator-images-preview.orth.uk"
+CLOUDFLARE_PAGES_URL = "banananator.pages.dev"
+[[env.preview.r2_buckets]]
+binding = 'R2'
+bucket_name = 'banananator-preview'
+preview_bucket_name = 'banananator-preview'
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "banananator_preview"
+database_id = "34e90672-be2c-44a3-825b-f5852fb27efa"
+preview_database_id = "34e90672-be2c-44a3-825b-f5852fb27efa"
+
+[build]
+# command = "worker-build --release" # only rust
+# https://rustwasm.github.io/docs/wasm-pack/tutorials/npm-browser-packages/building-your-project.html
+command = "cd rust && wasm-pack build --target=web --out-dir=../src/wasm"
+
+[[d1_databases]]
 binding = "DB"
 database_name = "banananator"
 database_id = "81dfc707-872c-4394-a8ce-9fa8c0010c74"
-# Called banananator_preview
-preview_database_id = "34e90672-be2c-44a3-825b-f5852fb27efa"
+preview_database_id = "34e90672-be2c-44a3-825b-f5852fb27efa" # banananator_preview
 
 [[r2_buckets]]
 binding = 'R2'
 bucket_name = 'banananator'
+preview_bucket_name = 'banananator-preview'

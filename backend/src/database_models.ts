@@ -1,14 +1,16 @@
 type AnnotationJobDb = {
     id: string,
     CreatedOn: string,
-    ImageFileName: string
+    ImageLargeUri: string
+
+    ImageThumbnailUri: string
 }
 
 type AnnotationDb = {
     id: string,
     AnnotatedOn: string,
     ServerReceivedOn: string,
-    AnnotationJobID: string,
+    AnnotationJobId: string,
     BoundingBoxes: string,
 }
 

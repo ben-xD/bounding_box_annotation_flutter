@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:twemoji/twemoji.dart';
 
 class HomePage extends HookWidget {
   HomePage({super.key});

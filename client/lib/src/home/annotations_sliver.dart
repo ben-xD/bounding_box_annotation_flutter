@@ -90,7 +90,7 @@ class AnnotationWidget extends HookWidget {
     final job = useState<AnnotationJob?>(null);
     useEffect(() {
       service
-          .getJob(annotation.annotationJobID)
+          .getJob(annotation.annotationJobId)
           .then((value) => job.value = value);
       return null;
     }, []);

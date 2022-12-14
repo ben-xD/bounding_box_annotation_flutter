@@ -6,21 +6,38 @@
 
 ## Useful commands:
 
+### Prerequisites
+- Optional: [install wrangler globally](https://developers.cloudflare.com/workers/wrangler/install-and-update/#install-wrangler-globally) by running `npm install --global wrangler`
+
 ### For backend
-- Run backend locally: `npx wrangler dev`
-- Deploy backend application: `npx wrangler publish`
-    - Read logs in realtime: `npx wrangler tail`
+- Install dependencies: `pnpm i`
+- Run backend locally: `wrangler dev`
+- Deploy backend application: `wrangler publish`
+    - Read logs in realtime: `wrangler tail`
+    - Warning: if you use the wrong imports (unoptimised), the worker can be quite large.
+    - The maximum it can be is 5MB. Currently, it is `Total Upload: 1722.06 KiB / gzip: 570.04 KiB`.
 - Reset database to `schema.sql`:
-    - Reset preview database: `npx wrangler d1 execute banananator_preview --file schemas/schema.sql`
-    - Reset production database: `npx wrangler d1 execute banananator --file schemas/schema.sql`
+    - Reset preview database: `wrangler d1 execute banananator_preview --file schemas/schema.sql`
+    - Reset production database: `wrangler d1 execute banananator --file schemas/schema.sql`
+
+## Rust worker compilation
+    - Set up `.env` file containing token for accessing worker. Create one in https://dash.cloudflare.com/profile/api-tokens
+    - Build image and start container: `docker-compose up -d --build`
+    - Enter container: `docker exec -it backend-development-1 bash`
+    - Install wasm-pack: run `curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh`
+        - Ensure it is the latest version from . Check your current version by running `wasm-pack -V`. Install using another method if necessary. I found reinstalling it with the same command fixed it.
+    - Install worker-build, run `cargo install -q worker-build`
+    - Install wasm-bindegen: `cargo install wasm-bindgen-cli`
+    - Install rust using [rust-up](https://rustup.rs/): run `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh`
+    - Launch the backend dev server: run `wrangler dev`
 
 ### For client
 - Deploy web application: 
     - `cd ../client/`
     - `flutter build web`
     - `cd -`
-    - `npx wrangler pages publish ../client/build/web --project-name=banananator`
-    - To deploy fragile version, run: `npx wrangler pages publish ../client/build/web --project-name=banananator-fragile`
+    - `wrangler pages publish ../client/build/web --project-name=banananator`
+    - To deploy fragile version, run: `wrangler pages publish ../client/build/web --project-name=banananator-fragile`
     - See https://developers.cloudflare.com/pages/platform/direct-upload/#wrangler-cli
 
 

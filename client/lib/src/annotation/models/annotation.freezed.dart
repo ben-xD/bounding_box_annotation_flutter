@@ -192,14 +192,11 @@ Annotation _$AnnotationFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Annotation {
-  @JsonKey(name: 'AnnotationJobID')
   @HiveField(0)
-  String get annotationJobID => throw _privateConstructorUsedError;
+  String get annotationJobId => throw _privateConstructorUsedError;
   @BoundingBoxesConverter()
-  @JsonKey(name: 'BoundingBoxes')
   @HiveField(1)
   List<BoundingBox> get boundingBoxes => throw _privateConstructorUsedError;
-  @JsonKey(name: 'AnnotatedOn')
   @HiveField(2)
   DateTime get annotatedOn => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -219,19 +216,10 @@ abstract class $AnnotationCopyWith<$Res> {
       _$AnnotationCopyWithImpl<$Res, Annotation>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'AnnotationJobID')
-      @HiveField(0)
-          String annotationJobID,
-      @BoundingBoxesConverter()
-      @JsonKey(name: 'BoundingBoxes')
-      @HiveField(1)
-          List<BoundingBox> boundingBoxes,
-      @JsonKey(name: 'AnnotatedOn')
-      @HiveField(2)
-          DateTime annotatedOn,
-      @JsonKey(ignore: true)
-      @HiveField(3)
-          String? localId});
+      {@HiveField(0) String annotationJobId,
+      @BoundingBoxesConverter() @HiveField(1) List<BoundingBox> boundingBoxes,
+      @HiveField(2) DateTime annotatedOn,
+      @JsonKey(ignore: true) @HiveField(3) String? localId});
 }
 
 /// @nodoc
@@ -247,15 +235,15 @@ class _$AnnotationCopyWithImpl<$Res, $Val extends Annotation>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? annotationJobID = null,
+    Object? annotationJobId = null,
     Object? boundingBoxes = null,
     Object? annotatedOn = null,
     Object? localId = freezed,
   }) {
     return _then(_value.copyWith(
-      annotationJobID: null == annotationJobID
-          ? _value.annotationJobID
-          : annotationJobID // ignore: cast_nullable_to_non_nullable
+      annotationJobId: null == annotationJobId
+          ? _value.annotationJobId
+          : annotationJobId // ignore: cast_nullable_to_non_nullable
               as String,
       boundingBoxes: null == boundingBoxes
           ? _value.boundingBoxes
@@ -282,19 +270,10 @@ abstract class _$$_AnnotationCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'AnnotationJobID')
-      @HiveField(0)
-          String annotationJobID,
-      @BoundingBoxesConverter()
-      @JsonKey(name: 'BoundingBoxes')
-      @HiveField(1)
-          List<BoundingBox> boundingBoxes,
-      @JsonKey(name: 'AnnotatedOn')
-      @HiveField(2)
-          DateTime annotatedOn,
-      @JsonKey(ignore: true)
-      @HiveField(3)
-          String? localId});
+      {@HiveField(0) String annotationJobId,
+      @BoundingBoxesConverter() @HiveField(1) List<BoundingBox> boundingBoxes,
+      @HiveField(2) DateTime annotatedOn,
+      @JsonKey(ignore: true) @HiveField(3) String? localId});
 }
 
 /// @nodoc
@@ -308,15 +287,15 @@ class __$$_AnnotationCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? annotationJobID = null,
+    Object? annotationJobId = null,
     Object? boundingBoxes = null,
     Object? annotatedOn = null,
     Object? localId = freezed,
   }) {
     return _then(_$_Annotation(
-      annotationJobID: null == annotationJobID
-          ? _value.annotationJobID
-          : annotationJobID // ignore: cast_nullable_to_non_nullable
+      annotationJobId: null == annotationJobId
+          ? _value.annotationJobId
+          : annotationJobId // ignore: cast_nullable_to_non_nullable
               as String,
       boundingBoxes: null == boundingBoxes
           ? _value._boundingBoxes
@@ -338,14 +317,11 @@ class __$$_AnnotationCopyWithImpl<$Res>
 @JsonSerializable()
 class _$_Annotation implements _Annotation {
   const _$_Annotation(
-      {@JsonKey(name: 'AnnotationJobID')
-      @HiveField(0)
-          required this.annotationJobID,
+      {@HiveField(0)
+          required this.annotationJobId,
       @BoundingBoxesConverter()
-      @JsonKey(name: 'BoundingBoxes')
       @HiveField(1)
           required final List<BoundingBox> boundingBoxes,
-      @JsonKey(name: 'AnnotatedOn')
       @HiveField(2)
           required this.annotatedOn,
       @JsonKey(ignore: true)
@@ -357,13 +333,11 @@ class _$_Annotation implements _Annotation {
       _$$_AnnotationFromJson(json);
 
   @override
-  @JsonKey(name: 'AnnotationJobID')
   @HiveField(0)
-  final String annotationJobID;
+  final String annotationJobId;
   final List<BoundingBox> _boundingBoxes;
   @override
   @BoundingBoxesConverter()
-  @JsonKey(name: 'BoundingBoxes')
   @HiveField(1)
   List<BoundingBox> get boundingBoxes {
     if (_boundingBoxes is EqualUnmodifiableListView) return _boundingBoxes;
@@ -372,7 +346,6 @@ class _$_Annotation implements _Annotation {
   }
 
   @override
-  @JsonKey(name: 'AnnotatedOn')
   @HiveField(2)
   final DateTime annotatedOn;
   @override
@@ -382,7 +355,7 @@ class _$_Annotation implements _Annotation {
 
   @override
   String toString() {
-    return 'Annotation(annotationJobID: $annotationJobID, boundingBoxes: $boundingBoxes, annotatedOn: $annotatedOn, localId: $localId)';
+    return 'Annotation(annotationJobId: $annotationJobId, boundingBoxes: $boundingBoxes, annotatedOn: $annotatedOn, localId: $localId)';
   }
 
   @override
@@ -390,8 +363,8 @@ class _$_Annotation implements _Annotation {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$_Annotation &&
-            (identical(other.annotationJobID, annotationJobID) ||
-                other.annotationJobID == annotationJobID) &&
+            (identical(other.annotationJobId, annotationJobId) ||
+                other.annotationJobId == annotationJobId) &&
             const DeepCollectionEquality()
                 .equals(other._boundingBoxes, _boundingBoxes) &&
             (identical(other.annotatedOn, annotatedOn) ||
@@ -403,7 +376,7 @@ class _$_Annotation implements _Annotation {
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      annotationJobID,
+      annotationJobId,
       const DeepCollectionEquality().hash(_boundingBoxes),
       annotatedOn,
       localId);
@@ -424,14 +397,11 @@ class _$_Annotation implements _Annotation {
 
 abstract class _Annotation implements Annotation {
   const factory _Annotation(
-      {@JsonKey(name: 'AnnotationJobID')
-      @HiveField(0)
-          required final String annotationJobID,
+      {@HiveField(0)
+          required final String annotationJobId,
       @BoundingBoxesConverter()
-      @JsonKey(name: 'BoundingBoxes')
       @HiveField(1)
           required final List<BoundingBox> boundingBoxes,
-      @JsonKey(name: 'AnnotatedOn')
       @HiveField(2)
           required final DateTime annotatedOn,
       @JsonKey(ignore: true)
@@ -442,16 +412,13 @@ abstract class _Annotation implements Annotation {
       _$_Annotation.fromJson;
 
   @override
-  @JsonKey(name: 'AnnotationJobID')
   @HiveField(0)
-  String get annotationJobID;
+  String get annotationJobId;
   @override
   @BoundingBoxesConverter()
-  @JsonKey(name: 'BoundingBoxes')
   @HiveField(1)
   List<BoundingBox> get boundingBoxes;
   @override
-  @JsonKey(name: 'AnnotatedOn')
   @HiveField(2)
   DateTime get annotatedOn;
   @override
@@ -470,13 +437,10 @@ AnnotationJob _$AnnotationJobFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AnnotationJob {
-  @JsonKey(name: 'id')
   @HiveField(0)
   String get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'ImageURL')
   @HiveField(1)
   String get imageUrl => throw _privateConstructorUsedError;
-  @JsonKey(name: 'CreatedOn')
   @HiveField(2)
   DateTime get createdOn => throw _privateConstructorUsedError;
 
@@ -493,9 +457,9 @@ abstract class $AnnotationJobCopyWith<$Res> {
       _$AnnotationJobCopyWithImpl<$Res, AnnotationJob>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') @HiveField(0) String id,
-      @JsonKey(name: 'ImageURL') @HiveField(1) String imageUrl,
-      @JsonKey(name: 'CreatedOn') @HiveField(2) DateTime createdOn});
+      {@HiveField(0) String id,
+      @HiveField(1) String imageUrl,
+      @HiveField(2) DateTime createdOn});
 }
 
 /// @nodoc
@@ -541,9 +505,9 @@ abstract class _$$_AnnotationJobCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') @HiveField(0) String id,
-      @JsonKey(name: 'ImageURL') @HiveField(1) String imageUrl,
-      @JsonKey(name: 'CreatedOn') @HiveField(2) DateTime createdOn});
+      {@HiveField(0) String id,
+      @HiveField(1) String imageUrl,
+      @HiveField(2) DateTime createdOn});
 }
 
 /// @nodoc
@@ -581,24 +545,19 @@ class __$$_AnnotationJobCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_AnnotationJob implements _AnnotationJob {
-  const _$_AnnotationJob(
-      @JsonKey(name: 'id') @HiveField(0) this.id,
-      @JsonKey(name: 'ImageURL') @HiveField(1) this.imageUrl,
-      @JsonKey(name: 'CreatedOn') @HiveField(2) this.createdOn);
+  const _$_AnnotationJob(@HiveField(0) this.id, @HiveField(1) this.imageUrl,
+      @HiveField(2) this.createdOn);
 
   factory _$_AnnotationJob.fromJson(Map<String, dynamic> json) =>
       _$$_AnnotationJobFromJson(json);
 
   @override
-  @JsonKey(name: 'id')
   @HiveField(0)
   final String id;
   @override
-  @JsonKey(name: 'ImageURL')
   @HiveField(1)
   final String imageUrl;
   @override
-  @JsonKey(name: 'CreatedOn')
   @HiveField(2)
   final DateTime createdOn;
 
@@ -639,24 +598,20 @@ class _$_AnnotationJob implements _AnnotationJob {
 
 abstract class _AnnotationJob implements AnnotationJob {
   const factory _AnnotationJob(
-          @JsonKey(name: 'id') @HiveField(0) final String id,
-          @JsonKey(name: 'ImageURL') @HiveField(1) final String imageUrl,
-          @JsonKey(name: 'CreatedOn') @HiveField(2) final DateTime createdOn) =
-      _$_AnnotationJob;
+      @HiveField(0) final String id,
+      @HiveField(1) final String imageUrl,
+      @HiveField(2) final DateTime createdOn) = _$_AnnotationJob;
 
   factory _AnnotationJob.fromJson(Map<String, dynamic> json) =
       _$_AnnotationJob.fromJson;
 
   @override
-  @JsonKey(name: 'id')
   @HiveField(0)
   String get id;
   @override
-  @JsonKey(name: 'ImageURL')
   @HiveField(1)
   String get imageUrl;
   @override
-  @JsonKey(name: 'CreatedOn')
   @HiveField(2)
   DateTime get createdOn;
   @override
