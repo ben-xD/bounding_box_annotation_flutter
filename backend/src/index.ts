@@ -6,7 +6,7 @@ import {clientError, serverError} from './errors';
 // Loads the webassembly module https://rustwasm.github.io/docs/book/game-of-life/hello-world.html#wasm-game-of-lifepkgwasm_game_of_life_bgwasm
 import wasm from "./wasm/backend_bg.wasm";
 // Loads the wrapper, which is nicer to use. e.g. https://rustwasm.github.io/docs/book/game-of-life/hello-world.html#wasm-game-of-lifepkgwasm_game_of_lifejs
-import init, {endianness, ImageSize, resize_image} from "./wasm/backend";
+import init, {endianness, ImageSize, resize_2, resize_image} from "./wasm/backend";
 import {Annotation, AnnotationJob, CreateAnnotationRequest} from "./client_models";
 
 // See https://honojs.dev/docs/examples/ for more examples.
@@ -184,6 +184,10 @@ app.put('/images/:image_name', async ctx => {
     // Resizing in separate steps consumes more memory. Wasm doesn't deallocate.
     const thumbnailImageArray = resize_image(new Uint8Array(imageBuffer), [ImageSize.Thumbnail]);
     const largeImageArray = resize_image(new Uint8Array(imageBuffer), ImageSize.Large);
+
+    // Approach 2: Doesn't work because we can't send `Struct{Vec<u8>}`
+    // const resizedImages = resize_2(new Uint8Array(imageBuffer));
+
     if (!thumbnailImageArray) {
         return serverError(ctx, "Resizing: Thumbnail image was undefined.")
     }
