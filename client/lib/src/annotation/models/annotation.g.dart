@@ -100,19 +100,22 @@ class AnnotationJobAdapter extends TypeAdapter<AnnotationJob> {
       fields[0] as String,
       fields[1] as String,
       fields[2] as DateTime,
+      fields[3] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, AnnotationJob obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.imageUrl)
+      ..write(obj.imageUriOriginal)
       ..writeByte(2)
-      ..write(obj.createdOn);
+      ..write(obj.createdOn)
+      ..writeByte(3)
+      ..write(obj.imageUriThumbnail);
   }
 
   @override
@@ -162,13 +165,15 @@ Map<String, dynamic> _$$_AnnotationToJson(_$_Annotation instance) =>
 _$_AnnotationJob _$$_AnnotationJobFromJson(Map<String, dynamic> json) =>
     _$_AnnotationJob(
       json['id'] as String,
-      json['imageUrl'] as String,
+      json['imageUriOriginal'] as String,
       DateTime.parse(json['createdOn'] as String),
+      json['imageUriThumbnail'] as String,
     );
 
 Map<String, dynamic> _$$_AnnotationJobToJson(_$_AnnotationJob instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'imageUrl': instance.imageUrl,
+      'imageUriOriginal': instance.imageUriOriginal,
       'createdOn': instance.createdOn.toIso8601String(),
+      'imageUriThumbnail': instance.imageUriThumbnail,
     };

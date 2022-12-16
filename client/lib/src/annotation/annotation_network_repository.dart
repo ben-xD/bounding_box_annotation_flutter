@@ -7,12 +7,14 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-
 class AnnotationNetworkRepository {
   Future<List<AnnotationJob>> fetchAnnotationJobs() async {
     final endpoint = Constants.apiUrl.resolve("api/annotations/jobs");
     try {
       final response = await http.get(endpoint);
+      if (response.statusCode != 200) {
+        print("Error: ${response.body}");
+      }
       final List<dynamic> json = jsonDecode(response.body);
       return json.map((e) => AnnotationJob.fromJson(e)).toList();
     } on http.ClientException catch (e) {
@@ -25,7 +27,10 @@ class AnnotationNetworkRepository {
     final json = annotation.toJson();
     final jsonString = jsonEncode(json);
     try {
-      await http.post(endpoint, body: jsonString);
+      final result = await http.post(endpoint, body: jsonString);
+      if (result.statusCode != 201) {
+        print("Error: ${result.body}");
+      }
     } on http.ClientException catch (e) {
       throw RepositoryException(e.message);
     }
@@ -71,7 +76,7 @@ class AnnotationNetworkRepository {
   }
 
   Future<String?> getImagePathFor(AnnotationJob job) async {
-    final uri = Uri.parse(job.imageUrl);
+    final uri = Uri.parse(job.imageUriOriginal);
     final documentDirectory = await getApplicationDocumentsDirectory();
     final imageDirectory = "${documentDirectory.path}/images";
     final file = File(imageDirectory + uri.pathSegments.last);
@@ -79,10 +84,12 @@ class AnnotationNetworkRepository {
     return file.path;
   }
 
-  Future<void> createJobWithImage(String name, {Uint8List? bytes, String? path}) async {
+  Future<void> createJobWithImage(String name,
+      {Uint8List? bytes, String? path}) async {
     if (bytes == null) {
       if (path == null) {
-        throw RepositoryException("Both path and bytes were null. There is no image to upload.");
+        throw RepositoryException(
+            "Both path and bytes were null. There is no image to upload.");
       }
       // Read from the path if we don't have the raw bytes.
       bytes = await File(path).readAsBytes();
@@ -101,6 +108,8 @@ class AnnotationNetworkRepository {
         // final file = File("$imageDirectory/downloaded-$name");
         // file.writeAsBytesSync(response.bodyBytes, flush: true);
         return;
+      } else {
+        print(response.body);
       }
       throw Exception("Unexpected status code: ${response.statusCode}");
     } on http.ClientException catch (e) {

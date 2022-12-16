@@ -14,6 +14,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 // to help generate code like converting into JSON.
 
 part 'annotation.freezed.dart';
+
 part 'annotation.g.dart';
 
 @freezed
@@ -22,10 +23,8 @@ class BoundingBox with _$BoundingBox {
   /// Normalised coordinates, from 0 to 1.
 
   const factory BoundingBox({
-    @HiveField(0)
-    @OffsetToJson() required Offset topLeft,
-    @HiveField(1)
-    @SizeToJson() required Size size,
+    @HiveField(0) @OffsetToJson() required Offset topLeft,
+    @HiveField(1) @SizeToJson() required Size size,
   }) = _BoundingBox;
 
   factory BoundingBox.fromJson(Map<String, Object?> json) =>
@@ -35,17 +34,17 @@ class BoundingBox with _$BoundingBox {
 @freezed
 @HiveType(typeId: HiveTypeIds.annotation)
 class Annotation with _$Annotation {
-  const factory Annotation({
-      @HiveField(0)
+  const factory Annotation(
+      {@HiveField(0)
           required String annotationJobId,
       @BoundingBoxesConverter()
       @HiveField(1)
           required List<BoundingBox> boundingBoxes,
       @HiveField(2)
           required DateTime annotatedOn,
-        @JsonKey(ignore: true)
-        @HiveField(3)
-        String? localId}) = _Annotation;
+      @JsonKey(ignore: true)
+      @HiveField(3)
+          String? localId}) = _Annotation;
 
   factory Annotation.fromJson(Map<String, Object?> json) =>
       _$AnnotationFromJson(json);
@@ -55,9 +54,11 @@ class Annotation with _$Annotation {
 @HiveType(typeId: HiveTypeIds.annotationJob)
 class AnnotationJob with _$AnnotationJob {
   const factory AnnotationJob(
-      @HiveField(0) String id,
-      @HiveField(1) String imageUrl,
-      @HiveField(2) DateTime createdOn) = _AnnotationJob;
+    @HiveField(0) String id,
+    @HiveField(1) String imageUriOriginal,
+    @HiveField(2) DateTime createdOn,
+    @HiveField(3) String imageUriThumbnail,
+  ) = _AnnotationJob;
 
   factory AnnotationJob.fromJson(Map<String, Object?> json) =>
       _$AnnotationJobFromJson(json);

@@ -81,7 +81,7 @@ class AnnotationJobsSliver extends HookWidget {
                           ),
                           const SizedBox(height: 8),
                           Image.network(
-                            job.imageUrl,
+                            job.imageUriThumbnail,
                             width: 160,
                           ),
                           // SelectableText("Job ID: ${job.id}"),

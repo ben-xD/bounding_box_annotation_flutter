@@ -1,9 +1,9 @@
 type AnnotationJobDb = {
     id: string,
     CreatedOn: string,
-    ImageLargeUri: string
+    ImageUriOriginal: string
 
-    ImageThumbnailUri: string
+    ImageUriThumbnail: string
 }
 
 type AnnotationDb = {

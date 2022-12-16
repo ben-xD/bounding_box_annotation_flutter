@@ -5,8 +5,8 @@ compatibility_date = "2022-12-12"
 [env.production]
 name = "banananator"
 [env.production.vars]
-CLOUDFLARE_IMAGE_BUCKET_URL = "banananator-images.orth.uk"
-CLOUDFLARE_PAGES_URL = "banananator.pages.dev"
+CLOUDFLARE_IMAGE_BUCKET_URL = "https://banananator-images.orth.uk"
+CLOUDFLARE_PAGES_URL = "https://banananator.pages.dev"
 
 [env.preview]
 name = "banananator-preview"
@@ -14,8 +14,8 @@ name = "banananator-preview"
 #    {binding = "SINGLE_RESIZE", service = "resize_single_image_preview"}
 #]
 [env.preview.vars]
-CLOUDFLARE_IMAGE_BUCKET_URL = "banananator-images-preview.orth.uk"
-CLOUDFLARE_PAGES_URL = "banananator.pages.dev"
+CLOUDFLARE_IMAGE_BUCKET_URL = "https://banananator-images-preview.orth.uk"
+CLOUDFLARE_PAGES_URL = "https://banananator.pages.dev"
 [[env.preview.r2_buckets]]
 binding = 'R2'
 bucket_name = 'banananator-preview'

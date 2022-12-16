@@ -235,7 +235,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
     );
   }
 
-  Image buildImage(AnnotationJob job) => Image.network(job.imageUrl, key: _imageKey);
+  Image buildImage(AnnotationJob job) => Image.network(job.imageUriOriginal, key: _imageKey);
 
   SingleChildScrollView buildTaskWidget(BuildContext context) {
     return SingleChildScrollView(

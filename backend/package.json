@@ -7,17 +7,16 @@
   "scripts": {
     "clean": "git clean -fdX wasm dist && cd rust && cargo clean",
     "build": "wrangler publish --dry-run --outdir=dist",
-    "publish": "wrangler publish",
+    "publish": "wrangler publish --env=preview",
     "dev": "wrangler dev --env=preview",
-    "local": "miniflare --watch --debug --modules"
+    "local": "miniflare --watch --debug --modules",
+    "tail": "npx wrangler tail --env=preview"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20221111.1",
-    "@databases/split-sql-query": "^1.0.3",
-    "@databases/sql": "^3.2.0",
     "@types/jest": "^29.2.4",
     "@types/uuid": "^9.0.0",
     "esbuild": "^0.16.7",

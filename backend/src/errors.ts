@@ -2,15 +2,23 @@ import {Context} from "hono";
 import {Environment} from "hono/dist/types";
 
 const logError = (e: any) => {
-    if (!e) return;
+    if (!e) {
+        console.log("No error, so skipping logging error.")
+        return;
+    }
+    console.log("Logging error:")
     if (!(e instanceof Error)) {
-        console.error("Error was not Error type.")
+        console.log("Error was not Error type.")
     }
     // Logging errors, as documented in https://developers.cloudflare.com/d1/platform/client-api/#errors
-    console.error({
-        message: e.message,
-        cause: e.cause.message,
-    });
+    if (e.name == "D1_ERROR") {
+        console.log({
+            message: e.message,
+            cause: e.cause.message,
+        });
+    } else {
+        console.log(JSON.stringify(e))
+    }
 }
 
 const clientError = <P extends string, E extends Partial<Environment>, S>(ctx: Context<P, E, S>, message: string, e?: any) => {

@@ -440,9 +440,11 @@ mixin _$AnnotationJob {
   @HiveField(0)
   String get id => throw _privateConstructorUsedError;
   @HiveField(1)
-  String get imageUrl => throw _privateConstructorUsedError;
+  String get imageUriOriginal => throw _privateConstructorUsedError;
   @HiveField(2)
   DateTime get createdOn => throw _privateConstructorUsedError;
+  @HiveField(3)
+  String get imageUriThumbnail => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -458,8 +460,9 @@ abstract class $AnnotationJobCopyWith<$Res> {
   @useResult
   $Res call(
       {@HiveField(0) String id,
-      @HiveField(1) String imageUrl,
-      @HiveField(2) DateTime createdOn});
+      @HiveField(1) String imageUriOriginal,
+      @HiveField(2) DateTime createdOn,
+      @HiveField(3) String imageUriThumbnail});
 }
 
 /// @nodoc
@@ -476,22 +479,27 @@ class _$AnnotationJobCopyWithImpl<$Res, $Val extends AnnotationJob>
   @override
   $Res call({
     Object? id = null,
-    Object? imageUrl = null,
+    Object? imageUriOriginal = null,
     Object? createdOn = null,
+    Object? imageUriThumbnail = null,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      imageUrl: null == imageUrl
-          ? _value.imageUrl
-          : imageUrl // ignore: cast_nullable_to_non_nullable
+      imageUriOriginal: null == imageUriOriginal
+          ? _value.imageUriOriginal
+          : imageUriOriginal // ignore: cast_nullable_to_non_nullable
               as String,
       createdOn: null == createdOn
           ? _value.createdOn
           : createdOn // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      imageUriThumbnail: null == imageUriThumbnail
+          ? _value.imageUriThumbnail
+          : imageUriThumbnail // ignore: cast_nullable_to_non_nullable
+              as String,
     ) as $Val);
   }
 }
@@ -506,8 +514,9 @@ abstract class _$$_AnnotationJobCopyWith<$Res>
   @useResult
   $Res call(
       {@HiveField(0) String id,
-      @HiveField(1) String imageUrl,
-      @HiveField(2) DateTime createdOn});
+      @HiveField(1) String imageUriOriginal,
+      @HiveField(2) DateTime createdOn,
+      @HiveField(3) String imageUriThumbnail});
 }
 
 /// @nodoc
@@ -522,22 +531,27 @@ class __$$_AnnotationJobCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
-    Object? imageUrl = null,
+    Object? imageUriOriginal = null,
     Object? createdOn = null,
+    Object? imageUriThumbnail = null,
   }) {
     return _then(_$_AnnotationJob(
       null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as String,
-      null == imageUrl
-          ? _value.imageUrl
-          : imageUrl // ignore: cast_nullable_to_non_nullable
+      null == imageUriOriginal
+          ? _value.imageUriOriginal
+          : imageUriOriginal // ignore: cast_nullable_to_non_nullable
               as String,
       null == createdOn
           ? _value.createdOn
           : createdOn // ignore: cast_nullable_to_non_nullable
               as DateTime,
+      null == imageUriThumbnail
+          ? _value.imageUriThumbnail
+          : imageUriThumbnail // ignore: cast_nullable_to_non_nullable
+              as String,
     ));
   }
 }
@@ -545,8 +559,11 @@ class __$$_AnnotationJobCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$_AnnotationJob implements _AnnotationJob {
-  const _$_AnnotationJob(@HiveField(0) this.id, @HiveField(1) this.imageUrl,
-      @HiveField(2) this.createdOn);
+  const _$_AnnotationJob(
+      @HiveField(0) this.id,
+      @HiveField(1) this.imageUriOriginal,
+      @HiveField(2) this.createdOn,
+      @HiveField(3) this.imageUriThumbnail);
 
   factory _$_AnnotationJob.fromJson(Map<String, dynamic> json) =>
       _$$_AnnotationJobFromJson(json);
@@ -556,14 +573,17 @@ class _$_AnnotationJob implements _AnnotationJob {
   final String id;
   @override
   @HiveField(1)
-  final String imageUrl;
+  final String imageUriOriginal;
   @override
   @HiveField(2)
   final DateTime createdOn;
+  @override
+  @HiveField(3)
+  final String imageUriThumbnail;
 
   @override
   String toString() {
-    return 'AnnotationJob(id: $id, imageUrl: $imageUrl, createdOn: $createdOn)';
+    return 'AnnotationJob(id: $id, imageUriOriginal: $imageUriOriginal, createdOn: $createdOn, imageUriThumbnail: $imageUriThumbnail)';
   }
 
   @override
@@ -572,15 +592,18 @@ class _$_AnnotationJob implements _AnnotationJob {
         (other.runtimeType == runtimeType &&
             other is _$_AnnotationJob &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.imageUrl, imageUrl) ||
-                other.imageUrl == imageUrl) &&
+            (identical(other.imageUriOriginal, imageUriOriginal) ||
+                other.imageUriOriginal == imageUriOriginal) &&
             (identical(other.createdOn, createdOn) ||
-                other.createdOn == createdOn));
+                other.createdOn == createdOn) &&
+            (identical(other.imageUriThumbnail, imageUriThumbnail) ||
+                other.imageUriThumbnail == imageUriThumbnail));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, imageUrl, createdOn);
+  int get hashCode => Object.hash(
+      runtimeType, id, imageUriOriginal, createdOn, imageUriThumbnail);
 
   @JsonKey(ignore: true)
   @override
@@ -599,8 +622,9 @@ class _$_AnnotationJob implements _AnnotationJob {
 abstract class _AnnotationJob implements AnnotationJob {
   const factory _AnnotationJob(
       @HiveField(0) final String id,
-      @HiveField(1) final String imageUrl,
-      @HiveField(2) final DateTime createdOn) = _$_AnnotationJob;
+      @HiveField(1) final String imageUriOriginal,
+      @HiveField(2) final DateTime createdOn,
+      @HiveField(3) final String imageUriThumbnail) = _$_AnnotationJob;
 
   factory _AnnotationJob.fromJson(Map<String, dynamic> json) =
       _$_AnnotationJob.fromJson;
@@ -610,10 +634,13 @@ abstract class _AnnotationJob implements AnnotationJob {
   String get id;
   @override
   @HiveField(1)
-  String get imageUrl;
+  String get imageUriOriginal;
   @override
   @HiveField(2)
   DateTime get createdOn;
+  @override
+  @HiveField(3)
+  String get imageUriThumbnail;
   @override
   @JsonKey(ignore: true)
   _$$_AnnotationJobCopyWith<_$_AnnotationJob> get copyWith =>

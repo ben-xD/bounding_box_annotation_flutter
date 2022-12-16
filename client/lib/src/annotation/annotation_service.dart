@@ -53,7 +53,7 @@ class AnnotationService extends ChangeNotifier {
       jobDownloadFutures.add(localRepository.saveJob(job));
     }
     final imageDownloadFutures =
-        jobs.map((j) => networkRepository.downloadImage(j.imageUrl));
+        jobs.map((j) => networkRepository.downloadImage(j.imageUriOriginal));
     // Download jobs and images in parallel
     await Future.wait([...jobDownloadFutures, ...imageDownloadFutures]);
     notifyListeners();

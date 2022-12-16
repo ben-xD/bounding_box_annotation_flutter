@@ -110,7 +110,7 @@ class AnnotationWidget extends HookWidget {
                   ? const SizedBox.shrink()
                   : ScaledBoundingBoxesWidget(
                       annotation: annotation,
-                      imageUrl: job.value!.imageUrl,
+                      imageUrl: job.value!.imageUriThumbnail,
                     ),
             ]),
           ),

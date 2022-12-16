@@ -19,5 +19,9 @@ image = "^0.24.5"
 
 # https://github.com/rustwasm/wasm-pack/issues/913
 # TODO follow more optimisations from there
-# [package.metadata.wasm-pack.profile.release]
-# wasm-opt = false
+# Sometimes necessary, sometimes not 🤷🏻. If you get errors with wasm-opt, uncomment this.
+# wasm-opt has reduced total worker bundle size from ~2.1MB to ~1.6MB
+# With optimisation: Total Upload: 1675.83 KiB / gzip: 582.77 KiB
+# Unfortunately it also slows the build down from a few seconds to a minute.
+ [package.metadata.wasm-pack.profile.release]
+ wasm-opt = false

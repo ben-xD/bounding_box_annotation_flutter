@@ -1,15 +1,13 @@
 export type AnnotationJob = {
-    images: {
-        thumbnail: URL,
-        large: URL
-    },
+    imageUriOriginal: string,
+    imageUriThumbnail: string,
     id: string,
     createdOn: string
 }
 
 export type CreateAnnotationRequest = {
     annotatedOn: string
-    annotationJobID: string
+    annotationJobId: string
     boundingBoxes: string
 }
 

@@ -10,10 +10,10 @@
 - Optional: [install wrangler globally](https://developers.cloudflare.com/workers/wrangler/install-and-update/#install-wrangler-globally) by running `npm install --global wrangler`
 
 ### For backend
-- Install nodeJS 18 LTS using nvm
-- Set it to default: `nvm alias default 18`
+- Install nodeJS 18 LTS. 
+  - I've found that Node installed using NVM might cause errors with applying SQL commands to D1. See [BUG: Can't execute D1 SQL](https://github.com/cloudflare/wrangler2/issues/2220#issuecomment-1355587661). So install Node from the nodeJS website instead.
 - Install non-project-specific tools: 
-  - run `npm install --global wrangler@latest` 
+  - run `npm install --global wrangler` 
   - run `npm install --global pnpm miniflare`
 - Install dependencies: `pnpm i`
 - Run backend locally: `wrangler dev`
