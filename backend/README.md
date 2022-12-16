@@ -10,6 +10,8 @@
 - Optional: [install wrangler globally](https://developers.cloudflare.com/workers/wrangler/install-and-update/#install-wrangler-globally) by running `npm install --global wrangler`
 
 ### For backend
+- Install nodeJS 18 LTS using nvm
+- Set it to default: `nvm alias default 18`
 - Install non-project-specific tools: 
   - run `npm install --global wrangler@latest` 
   - run `npm install --global pnpm miniflare`

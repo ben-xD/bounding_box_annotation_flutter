@@ -2,13 +2,6 @@ name = "banananator"
 main = "src/index.ts"
 compatibility_date = "2022-12-12"
 
-#[miniflare]
-#build_watch_dirs = ["src/", "rust/src"]
-
-# Not required, throws errors? Check again
-#[wasm_modules]
-#MODULE1 = "src/wasm/backend_bg.wasm"
-
 [env.production]
 name = "banananator"
 [env.production.vars]
