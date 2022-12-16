@@ -176,4 +176,4 @@ rust/target
 .idea
 
 # Generated files
-src/wasm
+wasm

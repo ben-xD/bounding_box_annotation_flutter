@@ -10,6 +10,9 @@
 - Optional: [install wrangler globally](https://developers.cloudflare.com/workers/wrangler/install-and-update/#install-wrangler-globally) by running `npm install --global wrangler`
 
 ### For backend
+- Install non-project-specific tools: 
+  - run `npm install --global wrangler@latest` 
+  - run `npm install --global pnpm miniflare`
 - Install dependencies: `pnpm i`
 - Run backend locally: `wrangler dev`
 - Deploy backend application: `wrangler publish`

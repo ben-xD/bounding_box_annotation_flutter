@@ -4,9 +4,9 @@ import {cors} from 'hono/cors';
 import {AnnotationDb, AnnotationJobDb} from './database_models';
 import {clientError, serverError} from './errors';
 // Loads the webassembly module https://rustwasm.github.io/docs/book/game-of-life/hello-world.html#wasm-game-of-lifepkgwasm_game_of_life_bgwasm
-import wasm from "./wasm/backend_bg.wasm";
+import wasm from "../wasm/backend_bg.wasm";
 // Loads the wrapper, which is nicer to use. e.g. https://rustwasm.github.io/docs/book/game-of-life/hello-world.html#wasm-game-of-lifepkgwasm_game_of_lifejs
-import init, {endianness, ImageSize, resize_2, resize_image} from "./wasm/backend";
+import init, {endianness, resize_image} from "../wasm/backend";
 import {Annotation, AnnotationJob, CreateAnnotationRequest} from "./client_models";
 
 // See https://honojs.dev/docs/examples/ for more examples.
@@ -168,8 +168,33 @@ app.get('/', async ctx => {
 // TODO use queues so we can return a response sooner
 // TODO stream process into wasm and back.
 // If i do stream processing instead of using buffers, as soon as the first byte reaches R2,
+function getImageCount(resultsBuffer: Uint8Array): number {
+    const length = resultsBuffer.length;
+    const imageCountArrayU8 = resultsBuffer.slice(length - 8, length);
+    const imageCountU64 = new BigUint64Array(imageCountArrayU8.buffer);
+    if (imageCountU64.length != 1) {
+        throw Error(`imageCountU64 was not 1-number long. It was ${imageCountU64.length}`);
+    }
+    const count = Number(imageCountU64[0]);
+    console.info(`Image count: ${imageCountU64}`);
+    return count;
+}
+
+function getOffsetBuffer(resultsBuffer: Uint8Array, imageCount: number): BigUint64Array {
+    const length = resultsBuffer.length;
+    const offsetArray = resultsBuffer.slice(length - (imageCount * 8) - 8, length - 8);
+    if (offsetArray.length != 16) {
+        throw Error(`offsetArray was not 16-bytes long. It was ${offsetArray.length}`);
+    }
+    const offsetBuffer = new BigUint64Array(offsetArray.buffer);
+    console.log(`offsetArray length: ${offsetArray.length}`)
+    console.log(`offsetBuffer length: ${offsetBuffer.length}`)
+    return offsetBuffer;
+}
+
 // I don't pay for this worker execution.
 app.put('/images/:image_name', async ctx => {
+    console.log("HELLO")
     await init(wasm);
     const originalImageName = ctx.req.param('image_name');
     const extension = originalImageName.split(".").pop()?.toLowerCase();
@@ -177,26 +202,43 @@ app.put('/images/:image_name', async ctx => {
         return clientError(ctx, "Unsupported image format. Only PNG or JPEGs are currently supported.")
     }
     console.info(`Received image: ${originalImageName}`)
-    const largeImageName = `${uuidv4().toString()}_large.jpeg`;
-    const thumbnailImageName = `${uuidv4().toString()}_thumbnail.jpeg`;
+    const id = uuidv4();
+    const largeImageName = `${id}_large.jpeg`;
+    const thumbnailImageName = `${id}_thumbnail.jpeg`;
     const imageBuffer = await ctx.req.arrayBuffer();
 
     // Resizing in separate steps consumes more memory. Wasm doesn't deallocate.
-    const thumbnailImageArray = resize_image(new Uint8Array(imageBuffer), [ImageSize.Thumbnail]);
-    const largeImageArray = resize_image(new Uint8Array(imageBuffer), ImageSize.Large);
+    // https://stackoverflow.com/a/51544868/7365866
+    // const thumbnailImageArray = resize_image(new Uint8Array(imageBuffer), [ImageSize.Thumbnail]);
+    // const largeImageArray = resize_image(new Uint8Array(imageBuffer), ImageSize.Large);
 
     // Approach 2: Doesn't work because we can't send `Struct{Vec<u8>}`
     // const resizedImages = resize_2(new Uint8Array(imageBuffer));
 
-    if (!thumbnailImageArray) {
-        return serverError(ctx, "Resizing: Thumbnail image was undefined.")
+    // Approach 3: create all images in 1 wasm call
+    console.log("Received buffer");
+    const resultsBuffer = resize_image(new Uint8Array(imageBuffer))
+    console.log("Resized image");
+    const imageCount = getImageCount(resultsBuffer);
+    const offsetBuffer = getOffsetBuffer(resultsBuffer, imageCount);
+    const length = resultsBuffer.length;
+
+    // Read the rust code to find the ordering. Large, then Thumbnail
+    console.info(`Offset buffer: ${offsetBuffer[0]}, ${offsetBuffer[1]}`)
+    let largeImageArray: Uint8Array = resultsBuffer.slice(Number(offsetBuffer[0]), Number(offsetBuffer[1]));
+    let thumbnailImageArray: Uint8Array = resultsBuffer.slice(Number(offsetBuffer[1]), length - 8);
+
+    if (!thumbnailImageArray || thumbnailImageArray.length == 0) {
+        return serverError(ctx, `Resizing: Thumbnail image was undefined or empty: ${thumbnailImageArray}`)
     }
-    if (!largeImageArray) {
-        return serverError(ctx, "Resizing: Large image was undefined.")
+    if (!largeImageArray || largeImageArray.length == 0) {
+        return serverError(ctx, `Resizing: Large image was undefined or empty: ${largeImageArray}`)
     }
 
     await ctx.env.R2.put(thumbnailImageName, thumbnailImageArray!.buffer, {httpMetadata: {cacheControl: "max-age=31536000"}}); // 365 days an arbitrary choice
     await ctx.env.R2.put(largeImageName, largeImageArray!.buffer, {httpMetadata: {cacheControl: "max-age=31536000"}}); // 365 days an arbitrary choice
+
+    console.info("Image saved");
 
     const jobId = uuidv4().toString();
     const currentTime = new Date().toISOString();

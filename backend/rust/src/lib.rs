@@ -8,6 +8,7 @@ use std::mem;
 use image::{DynamicImage, ImageFormat};
 use image::imageops::FilterType;
 use wasm_bindgen::prelude::*;
+use web_sys::console;
 use crate::utils::set_panic_hook;
 
 #[wasm_bindgen]
@@ -57,6 +58,7 @@ pub fn resize_image(buffer: Vec<u8>) -> Vec<u8> {
     // Returns a tuple containing 1. byte array containing images and
     // 2. the byte offset needed to get the image.
     set_panic_hook();
+    console::log_1(&"resize_image called in Rust".into());
 
     let image = image::load_from_memory(&buffer).unwrap();
 
@@ -64,13 +66,19 @@ pub fn resize_image(buffer: Vec<u8>) -> Vec<u8> {
     let resized_images: Vec<u8> = Vec::new();
     let mut cursor = Cursor::new(resized_images);
     for size in sizes {
+        offsets.push(cursor.position());
+        console::log_2(&"Offset is: ".into(), &format!("{:?}", cursor.position()).into());
         let resized_image = resize(&image, size);
         resized_image.into_image_bytes(&mut cursor);
-        offsets.push(cursor.position());
     };
-    let image_count = offsets.len() as u8;
-    unsafe { cursor.write(transmute(offsets.as_slice())).unwrap(); }
-    cursor.write(&[image_count]).unwrap();
+    // We could've done this, but javascript can't deserialize it because
+    // `Trace: byte length of BigUint64Array should be a multiple of 8
+    // let image_count = offsets.len() as u8;
+    let image_count = offsets.len() as u64;
+    let image_count_u8 = image_count.to_le_bytes(); // Both rust and JS use little endian.
+    let offsets_slice_u8 = unsafe { transmute(offsets.as_slice()) };
+    cursor.write(offsets_slice_u8).unwrap();
+    cursor.write(&image_count_u8).unwrap();
 
     // Actually, it's inverted.
     // The first byte for the number of images
@@ -126,7 +134,6 @@ fn log_dimensions(image: &DynamicImage) {
     let height = image.height();
     let width_js: JsValue = width.into();
     let height_js: JsValue = height.into();
-    use web_sys::console;
     console::log_2(&"Width: ".into(), &width_js);
     console::log_2(&"Height: ".into(), &height_js);
 }
