@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:banananator/src/annotation/models/annotation.dart';
 import 'package:banananator/src/constants.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -79,16 +80,17 @@ class AnnotationNetworkRepository {
     return file.path;
   }
 
-  Future<void> createJobWithImage(String name, {Uint8List? bytes, String? path}) async {
+  Future<void> createJobWithImage(PlatformFile image) async {
+    Uint8List? bytes = image.bytes;
     if (bytes == null) {
-      if (path == null) {
+      if (image.path == null) {
         throw RepositoryException("Both path and bytes were null. There is no image to upload.");
       }
-      bytes = await File(path).readAsBytes();
+      bytes = await File(image.path!).readAsBytes();
     }
     // file.bytes is null on Desktop, and used on web.
     // file.path is null on Web, and used on Desktop.
-    final endpoint = Constants.apiUrl.resolve("/images/$name");
+    final endpoint = Constants.apiUrl.resolve("/images/${image.name}");
     try {
       final response = await http.put(endpoint, body: bytes);
       if (response.statusCode == 201) {

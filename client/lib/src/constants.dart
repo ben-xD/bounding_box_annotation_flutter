@@ -5,4 +5,5 @@ class Constants {
   static const _apiHost = "banananator.benz.workers.dev";
   static final apiUrl = Uri.https(Constants._apiHost);
   // static final apiUrl = Uri.http("0.0.0.0:8787");
+
 }

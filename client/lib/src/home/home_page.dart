@@ -133,13 +133,14 @@ class HomePage extends HookWidget {
               icon: const Icon(Icons.add_a_photo),
               onPressed: () async {
                 FilePickerResult? result =
-                    await FilePicker.platform.pickFiles();
+                    await FilePicker.platform.pickFiles(type: FileType.image);
                 if (result != null) {
                   final files = result.files;
-                  final futures = files.map((f) => service.createJobWithImage(
-                      f.name,
-                      bytes: f.bytes,
-                      path: f.path));
+                  if (files.length != 1) {
+                    print("Only 1 image can be uploaded at a time");
+                    return;
+                  }
+                  final futures = files.map((f) => service.createJobWithImage(result.files[0]));
                   await Future.wait(futures).catchError(
                       (e) => showError(e, <void>[], context, isMounted));
                   // if (kIsWeb) {

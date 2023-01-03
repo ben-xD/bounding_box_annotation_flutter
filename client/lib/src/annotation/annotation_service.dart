@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:banananator/src/annotation/annotation_local_repository.dart';
 import 'package:banananator/src/annotation/annotation_network_repository.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import 'models/annotation.dart';
@@ -119,9 +120,8 @@ class AnnotationService extends ChangeNotifier {
         .length; // Number of failed requests
   }
 
-  Future<void> createJobWithImage(String name,
-      {Uint8List? bytes, String? path}) async {
-    await networkRepository.createJobWithImage(name, bytes: bytes, path: path);
+  Future<void> createJobWithImage(PlatformFile file) async {
+    await networkRepository.createJobWithImage(file);
   }
 
   Future<void> deleteJob(String id) async {
