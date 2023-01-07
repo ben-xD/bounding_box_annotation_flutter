@@ -2,6 +2,12 @@ name = "banananator"
 main = "src/index.ts"
 compatibility_date = "2022-12-12"
 
+[miniflare]
+build_watch_dirs = ["src/", "rust/src"]
+#kv_persist = true
+#cache_persist = true
+#durable_objects_persist = true
+
 [env.production]
 name = "banananator"
 [env.production.vars]
@@ -31,7 +37,9 @@ preview_database_id = "34e90672-be2c-44a3-825b-f5852fb27efa"
 # https://rustwasm.github.io/docs/wasm-pack/tutorials/npm-browser-packages/building-your-project.html
 #command = "pushd rust && wasm-pack build --target=web --out-dir=../src/wasm"
 command = "./scripts/build.sh"
-watch_dir = ["rust/src", "src"]
+# Arrays are not currently supported by miniflare. Since we use miniflare for running locally, we don't need this option.
+# To use `wrangler dev`, uncomment this line.
+# watch_dir = ["rust/src", "src"]
 
 [[d1_databases]]
 binding = "DB"
@@ -43,8 +51,3 @@ preview_database_id = "34e90672-be2c-44a3-825b-f5852fb27efa" # banananator_previ
 binding = 'R2'
 bucket_name = 'banananator'
 preview_bucket_name = 'banananator-preview'
-
-#[miniflare]
-#kv_persist = true
-#cache_persist = true
-#durable_objects_persist = true
