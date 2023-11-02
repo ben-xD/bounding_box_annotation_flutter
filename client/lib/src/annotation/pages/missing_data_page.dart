@@ -23,7 +23,7 @@ class ErrorPage extends StatelessWidget {
           children: [
             Text(
               "Oops, we can't find that.",
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
             (errorMessage == null)
                 ? const SizedBox.shrink()

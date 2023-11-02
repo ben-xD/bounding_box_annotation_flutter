@@ -9,9 +9,9 @@ class AppBarTitle extends StatelessWidget {
     return RichText(
       text: TwemojiTextSpan(
         text: 'Banananator 🍌📸',
-        style: Theme.of(context).textTheme.headline6!.apply(color: Colors.white),
+        style:
+            Theme.of(context).textTheme.titleLarge!.apply(color: Colors.white),
       ),
     );
   }
-
 }

@@ -29,7 +29,7 @@ GoRouter createRouterConfig() {
             GoRoute(
               path: "${Routes.annotate}/:jobId",
               builder: (context, state) {
-                return AnnotatePage(jobId: state.params["jobId"]!);
+                return AnnotatePage(jobId: state.pathParameters["jobId"]!);
               },
             ),
           ]),

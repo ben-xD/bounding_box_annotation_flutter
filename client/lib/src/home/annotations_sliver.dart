@@ -31,7 +31,7 @@ class AnnotationsSliver extends HookWidget {
           Row(
             children: [
               SelectableText("Annotations.",
-                  style: Theme.of(context).textTheme.headline5),
+                  style: Theme.of(context).textTheme.headlineSmall),
               IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () async {
@@ -62,8 +62,7 @@ class AnnotationsWidget extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return
-      Wrap(
+    return Wrap(
       children: annotations
           .map((e) => AnnotationWidget(
                 annotation: e,
@@ -79,8 +78,8 @@ class AnnotationWidget extends HookWidget {
 
   AnnotationWidget({
     required this.annotation,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   final getIt = GetIt.instance;
   late final AnnotationService service = getIt();
@@ -160,13 +159,11 @@ class _ScaledBoundingBoxesWidgetState extends State<ScaledBoundingBoxesWidget> {
     return Stack(
       children: [
         image,
-        ...widget.annotation.boundingBoxes
-            .map((e) => BoundingBoxWidget(
-                  box: e,
-                  color: Colors.red,
-                  scaleTo: imageSize,
-                ))
-            .toList(),
+        ...widget.annotation.boundingBoxes.map((e) => BoundingBoxWidget(
+              box: e,
+              color: Colors.red,
+              scaleTo: imageSize,
+            )),
       ],
     );
   }

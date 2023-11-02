@@ -32,7 +32,7 @@ class AnnotationJobsSliver extends HookWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SelectableText("Annotation jobs.",
-              style: Theme.of(context).textTheme.headline5),
+              style: Theme.of(context).textTheme.headlineSmall),
           SelectableText(
               "You have ${jobs.length} annotation ${(jobs.length == 1) ? "job" : "jobs"} to finish."),
           Text("Jobs downloaded: ${service.jobsDownloaded.length}"),

@@ -23,10 +23,8 @@ class BoundingBox with _$BoundingBox {
   /// Normalised coordinates, from 0 to 1.
 
   const factory BoundingBox({
-    @HiveField(0)
-    @OffsetToJson() required Offset topLeft,
-    @HiveField(1)
-    @SizeToJson() required Size size,
+    @HiveField(0) @OffsetToJson() required Offset topLeft,
+    @HiveField(1) @SizeToJson() required Size size,
   }) = _BoundingBox;
 
   factory BoundingBox.fromJson(Map<String, Object?> json) =>
@@ -39,17 +37,13 @@ class Annotation with _$Annotation {
   const factory Annotation(
       {@JsonKey(name: 'AnnotationJobID')
       @HiveField(0)
-          required String annotationJobID,
+      required String annotationJobID,
       @BoundingBoxesConverter()
       @JsonKey(name: 'BoundingBoxes')
       @HiveField(1)
-          required List<BoundingBox> boundingBoxes,
-      @JsonKey(name: 'AnnotatedOn')
-      @HiveField(2)
-          required DateTime annotatedOn,
-        @JsonKey(ignore: true)
-        @HiveField(3)
-        String? localId}) = _Annotation;
+      required List<BoundingBox> boundingBoxes,
+      @JsonKey(name: 'AnnotatedOn') @HiveField(2) required DateTime annotatedOn,
+      @JsonKey(ignore: true) @HiveField(3) String? localId}) = _Annotation;
 
   factory Annotation.fromJson(Map<String, Object?> json) =>
       _$AnnotationFromJson(json);
@@ -59,9 +53,10 @@ class Annotation with _$Annotation {
 @HiveType(typeId: HiveTypeIds.annotationJob)
 class AnnotationJob with _$AnnotationJob {
   const factory AnnotationJob(
-      @JsonKey(name: 'id') @HiveField(0) String id,
-      @JsonKey(name: 'ImageURL') @HiveField(1) String imageUrl,
-      @JsonKey(name: 'CreatedOn') @HiveField(2) DateTime createdOn) = _AnnotationJob;
+          @JsonKey(name: 'id') @HiveField(0) String id,
+          @JsonKey(name: 'ImageURL') @HiveField(1) String imageUrl,
+          @JsonKey(name: 'CreatedOn') @HiveField(2) DateTime createdOn) =
+      _AnnotationJob;
 
   factory AnnotationJob.fromJson(Map<String, Object?> json) =>
       _$AnnotationJobFromJson(json);

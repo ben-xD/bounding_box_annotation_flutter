@@ -12,18 +12,15 @@ class ErrorAlertDialog extends StatelessWidget {
         children: [
           const Text("Oopsies? 💩"),
           const SizedBox(height: 16),
-          Text("${errors.length} unique ${(errors.length == 1) ? "error" : "errors"}."),
+          Text(
+              "${errors.length} unique ${(errors.length == 1) ? "error" : "errors"}."),
           const SizedBox(height: 8),
-          ...errors
-              .map((e) => Text(
-            e,
-            style: Theme.of(context).textTheme.subtitle1,
-          ))
-              .toList(),
+          ...errors.map((e) => Text(
+                e,
+                style: Theme.of(context).textTheme.titleMedium,
+              )),
         ],
       ),
     );
-
   }
-
 }

@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:twemoji/twemoji.dart';
 
 class HomePage extends HookWidget {
   HomePage({super.key});
@@ -95,12 +94,10 @@ class HomePage extends HookWidget {
       service
           .fetchJobs()
           .then((jobs) => annotationJobs.value = jobs)
-          .catchError(
-              (e) {
-                annotationJobs.value = service.jobsDownloaded;
-                return showError(e, <AnnotationJob>[], context, isMounted);
-              },
-              test: (o) {
+          .catchError((e) {
+        annotationJobs.value = service.jobsDownloaded;
+        return showError(e, <AnnotationJob>[], context, isMounted);
+      }, test: (o) {
         return o.runtimeType == RepositoryException;
       });
       service
@@ -140,7 +137,8 @@ class HomePage extends HookWidget {
                     print("Only 1 image can be uploaded at a time");
                     return;
                   }
-                  final futures = files.map((f) => service.createJobWithImage(result.files[0]));
+                  final futures = files
+                      .map((f) => service.createJobWithImage(result.files[0]));
                   await Future.wait(futures).catchError(
                       (e) => showError(e, <void>[], context, isMounted));
                   // if (kIsWeb) {

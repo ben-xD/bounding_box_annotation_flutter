@@ -220,8 +220,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
                                       box: e.box,
                                       color: e.color,
                                       scaleTo: imageSize,
-                                    ))
-                                .toList(),
+                                    )),
                           ],
                         ),
                       ),
@@ -235,7 +234,8 @@ class _AnnotatePageState extends State<AnnotatePage> {
     );
   }
 
-  Image buildImage(AnnotationJob job) => Image.network(job.imageUrl, key: _imageKey);
+  Image buildImage(AnnotationJob job) =>
+      Image.network(job.imageUrl, key: _imageKey);
 
   SingleChildScrollView buildTaskWidget(BuildContext context) {
     return SingleChildScrollView(
@@ -248,7 +248,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SelectableText("Your task",
-                    style: Theme.of(context).textTheme.headline5),
+                    style: Theme.of(context).textTheme.headlineSmall),
                 const SelectableText(
                     "Draw a box around all groups of bananas."),
               ],
@@ -316,7 +316,7 @@ class _AnnotatePageState extends State<AnnotatePage> {
               children: [
                 Flexible(
                   child: SelectableText("Drawn bounding boxes",
-                      style: Theme.of(context).textTheme.headline5),
+                      style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete),
